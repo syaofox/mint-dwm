@@ -1,0 +1,21 @@
+Super + Space  打开 rofi 应用菜单 (drun)
+Super + Return  启动终端 (Alacritty)
+Super + Shift + l  锁屏 (slock)
+Super + b  切换状态栏 (bar) 的显示/隐藏
+Super + j  聚焦到堆栈中的下一个客户端
+Super + k  聚焦到堆栈中的上一个客户端
+Super + ,  减小主窗口区域的大小 (mfact -0.05)
+Super + .  增大主窗口区域的大小 (mfact +0.05)
+Super + s  将当前聚焦窗口切换到主区域 (zoom)
+Super + u  增大窗口间隙
+Super + Shift + u  减小窗口间隙
+Super + 0  切换窗口间隙启用/禁用 (toggle gaps)
+Super + Shift + 0  重置窗口间隙为默认值
+Super + Tab  切换到上一个选中的标签页
+Super + q  关闭当前聚焦窗口 (killclient)
+Super + m  切换到平铺布局 (tile)
+Super + Shift + q  退出 dwm
+Super + 1 到 9  切换到对应的标签页
+Super + Ctrl + 1 到 9  切换到对应的标签页同时保留当前标签页
+Super + Shift + 1 到 9  将当前窗口移动到对应的标签页
+Super + Ctrl + Shift + 1 到 9  切换当前窗口在对应标签页上的显示/隐藏状态

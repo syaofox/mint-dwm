@@ -1,0 +1,49 @@
+# 环境变量
+export LANG=en_US.UTF-8
+export XMODIFIERS=@im=fcitx
+export QT_IM_MODULE=fcitx
+export GTK_IM_MODULE=fcitx
+
+# 日志记录
+# 将标准输出和标准错误重定向到 ~/.dwm.log
+exec > "$HOME/.dwm.log" 2>&1
+echo "--- dwm startup at $(date) ---"
+
+
+# 定义变量
+USER_NAME="syaofox"
+WALLPAPER_PATH="/home/$USER_NAME/Pictures/wallpapers/black-nord.png"
+DUNSTRC_PATH="/home/$USER_NAME/.config/mint-dwm/config/dunstrc"
+
+# 安全启动函数
+start_once() {
+    if command -v "$1" >/dev/null 2>&1; then
+        # 使用 basename 提取命令名，确保能正确检测带路径的程序
+        if ! pgrep -x "$(basename "$1")" >/dev/null 2>&1; then
+            "$@" &
+        fi
+    fi
+}
+
+
+# gnome-keyring
+if command -v gnome-keyring-daemon >/dev/null 2>&1; then
+    # 只有当 keyring 守护进程未运行时才启动
+    if ! pgrep -x "gnome-keyring-d" >/dev/null 2>&1; then
+        eval "$(gnome-keyring-daemon --start --components=pkcs11,secrets,ssh,gpg)"
+        export SSH_AUTH_SOCK
+        export GPG_AGENT_INFO
+    fi
+fi
+
+
+# 提权代理
+start_once /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
+
+start_once slstatus
+start_once pasystray --notify=off
+start_once dunst -conf "$DUNSTRC_PATH"
+start_once feh --bg-scale "$WALLPAPER_PATH" >/dev/null 2>&1 &
+
+# 启动 dwm
+exec dwm
