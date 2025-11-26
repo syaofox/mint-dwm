@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Action
+Tooltip=Open Terminal Here
+Name=Open Terminal Here
+Icon=utilities-terminal
+Profiles=profile-zero;
+
+[X-Action-Profile profile-zero]
+MimeTypes=inode/directory;
+Exec=sh -c 'cd "$1" && /usr/bin/x-terminal-emulator' -- %f
+Name=Default profile
