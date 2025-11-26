@@ -129,6 +129,12 @@ static const char *const autostart[] = {
 	NULL /* terminate */
 };
 
+static const AppKey appkeys[] = {
+	/* class                                      modifier key   function        argument */
+	{ "Io.github.celluloid_player.Celluloid",     0,       XK_q, killclient,     {0} },
+	{ "Xviewer",     							  0,       XK_q, killclient,     {0} },
+};
+
 static const Key keys[] = {
 	/* modifier                     key        function        argument */
 	{ MODKEY,                       XK_space,  spawn,          {.v = appfindercmd } }, /* 启动菜单 */

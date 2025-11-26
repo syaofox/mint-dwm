@@ -125,6 +125,14 @@ typedef struct {
 } Key;
 
 typedef struct {
+	const char *class;
+	unsigned int mod;
+	KeySym keysym;
+	void (*func)(const Arg *);
+	const Arg arg;
+} AppKey;
+
+typedef struct {
 	const char *symbol;
 	void (*arrange)(Monitor *);
 } Layout;
@@ -269,6 +277,7 @@ static void updatesystray(void);
 static void updatesystrayicongeom(Client *i, int w, int h);
 static void updatesystrayiconstate(Client *i, XPropertyEvent *ev);
 static void updatetitle(Client *c);
+static void updateappkeys(Client *c);
 static void updatewindowtype(Client *c);
 static void updatewmhints(Client *c);
 static void view(const Arg *arg);
@@ -1108,6 +1117,7 @@ focus(Client *c)
 	}
 	selmon->sel = c;
 	drawbars();
+	updateappkeys(c);
 }
 
 /* there are some broken focus acquiring clients needing extra handling */
@@ -1327,6 +1337,22 @@ keypress(XEvent *e)
 		&& CLEANMASK(keys[i].mod) == CLEANMASK(ev->state)
 		&& keys[i].func)
 			keys[i].func(&(keys[i].arg));
+
+	if (selmon->sel) {
+		XClassHint ch = { NULL, NULL };
+		XGetClassHint(dpy, selmon->sel->win, &ch);
+		if (ch.res_class) {
+			for (i = 0; i < LENGTH(appkeys); i++)
+				if (keysym == appkeys[i].keysym
+				&& CLEANMASK(appkeys[i].mod) == CLEANMASK(ev->state)
+				&& appkeys[i].func
+				&& strcmp(appkeys[i].class, ch.res_class) == 0)
+					appkeys[i].func(&(appkeys[i].arg));
+			XFree(ch.res_class);
+		}
+		if (ch.res_name)
+			XFree(ch.res_name);
+	}
 }
 
 void
@@ -2607,6 +2633,33 @@ updatesystray(void)
 	XSetForeground(dpy, drw->gc, scheme[SchemeNorm][ColBg].pixel);
 	XFillRectangle(dpy, systray->win, drw->gc, 0, 0, w, bh);
 	XSync(dpy, False);
+}
+
+void
+updateappkeys(Client *c)
+{
+	unsigned int i, j;
+	unsigned int modifiers[] = { 0, LockMask, numlockmask, numlockmask|LockMask };
+	XClassHint ch = { NULL, NULL };
+
+	grabkeys();
+
+	if (c) {
+		XGetClassHint(dpy, c->win, &ch);
+		if (ch.res_class) {
+			for (i = 0; i < LENGTH(appkeys); i++) {
+				if (strcmp(appkeys[i].class, ch.res_class) == 0) {
+					for (j = 0; j < LENGTH(modifiers); j++)
+						XGrabKey(dpy, XKeysymToKeycode(dpy, appkeys[i].keysym),
+							appkeys[i].mod | modifiers[j], root,
+							True, GrabModeAsync, GrabModeAsync);
+				}
+			}
+			XFree(ch.res_class);
+		}
+		if (ch.res_name)
+			XFree(ch.res_name);
+	}
 }
 
 void
