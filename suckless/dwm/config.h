@@ -115,7 +115,8 @@ static const char *appfindercmd[] = { "/usr/bin/xfce4-appfinder", NULL };
 static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", col_gray1, "-nf", col_gray3, "-sb", col_cyan, "-sf", col_gray3, NULL };
 static const char *termcmd[]  = { "/usr/bin/x-terminal-emulator",  NULL };
 static const char *filecmd[]  = { "/usr/bin/thunar",  NULL };
-static const char *screenshotcmd[]  = { "/usr/bin/xfce4-screenshooter", "-r", "-c", NULL };
+static const char *screenshotcmd[]  = { "/bin/sh", "-c", "maim -s -u | xclip -selection clipboard -t image/png && notify-send '截图' '截图已保存到剪贴板'", NULL };
+static const char *screenshotsavedcmd[] = { "/bin/sh", "-c", "mkdir -p $HOME/Pictures/Screenshots && maim -s -u | tee \"$HOME/Pictures/Screenshots/Screenshot_$(date +%Y-%m-%d_%H-%M-%S).png\" | xclip -selection clipboard -t image/png && notify-send '截图' '已保存到剪贴板和 ~/Pictures/Screenshots/'", NULL };
 static const char *wallpapercmd[]  = { "/bin/sh", "-c", "$HOME/.config/mint-dwm/scripts/wallpaper-next.sh", NULL };
 static const char *browsercmd[]  = { "/bin/sh", "-c", "env LANGUAGE=zh_CN LANG=zh_CN.UTF-8 LC_ALL=zh_CN.UTF-8 /usr/bin/brave-browser-stable --unsafely-treat-insecure-origin-as-secure=http://10.10.10.5:8080/", NULL };
 static const char *slockcmd[]  = { "/bin/sh", "-c", "slock", NULL };
@@ -145,6 +146,7 @@ static const Key keys[] = {
 	{ MODKEY,                       XK_Return, spawn,          {.v = termcmd } }, /* 启动终端 */
     { MODKEY,                       XK_e,      spawn,          {.v = filecmd } }, /* 启动thunar */
     { MODKEY,                       XK_a,      spawn,          {.v = screenshotcmd } }, /* 截图 */
+    { MODKEY|ShiftMask,        		XK_a,      spawn,          {.v = screenshotsavedcmd } }, /* 截图并保存 */
     { MODKEY|ShiftMask,             XK_w,      spawn,          {.v = wallpapercmd } }, /* 切换壁纸 */
     { MODKEY,                       XK_w,      spawn,          {.v = browsercmd } }, /* 启动浏览器 */
     { MODKEY|ShiftMask,             XK_l,      spawn,          {.v = slockcmd } }, /* 锁屏 */

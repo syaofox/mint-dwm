@@ -43,7 +43,7 @@ sudo apt install build-essential libx11-dev libxinerama-dev libxft-dev libxrandr
 
 *   **基础工具**: `dunst` (通知), `feh` (壁纸), `pasystray` (PulseAudio 托盘), `picom` (可选，合成器), `wireplumber` (提供 wpctl 音量控制), `xfce4-clipman` (剪贴板), `xdotool` (模拟按键)
 *   **XFCE 组件**: `xfce4-appfinder` (应用启动器), `xfce4-screenshooter` (截图), `thunar` (文件管理器)
-*   **其他**: `libpolkit-gnome-1-0` (Polkit 代理), `gnome-keyring`
+*   **其他**: `maim` (截图), `xclip` (剪贴板管理), `libpolkit-gnome-1-0` (Polkit 代理), `gnome-keyring`
 *   **浏览器**: `brave-browser` (配置中默认使用，可修改)
 *   **搜索工具**: `fsearch` (配置中默认使用 Flatpak 版本)
 
@@ -111,7 +111,8 @@ Type=XSession
 | `Mod + w` | 打开浏览器 | `brave-browser` |
 | `Mod + Shift + w` | 切换壁纸 | `wallpaper-next.sh` |
 | `Mod + f` | 文件搜索 | `fsearch` |
-| `Mod + a` | 截图 | `xfce4-screenshooter` |
+| `Mod + a` | 截图 (仅复制) | `maim` |
+| `Mod + Shift + a` | 截图 (复制并保存到 ~/Pictures/Screenshots/) | `maim` |
 | `Mod + Shift + l` | 锁屏 | `slock` |
 | `Mod + Shift + q` | 退出 dwm (注销) | |
 | `Ctrl + Alt + Del` | 打开系统电源菜单 (锁屏/挂起/注销/重启/关机) | `sysact.sh` |
