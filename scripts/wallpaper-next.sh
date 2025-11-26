@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # 顺序切换 ~/.config/walls/ 下的壁纸
 
-WALL_DIR="$HOME/.config/walls"
+WALL_DIR="$HOME/Pictures/wallpapers"
 STATE_DIR="$HOME/.cache"
 STATE_FILE="$STATE_DIR/current_wallpaper"
 
@@ -39,7 +39,7 @@ printf '%s\n' "$next" > "$STATE_FILE"
 
 # 设置壁纸
 if command -v feh >/dev/null 2>&1; then
-  feh --bg-scale "$WALL_DIR/$next" 2>/dev/null &
+  feh --bg-fill "$WALL_DIR/$next" 2>/dev/null &
 fi
 
 
