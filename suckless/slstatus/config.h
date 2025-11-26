@@ -74,7 +74,7 @@ static const struct arg args[] = {
 	/* GPU & VRAM - 优化：使用原生 C 函数（NVML），最高性能 */
 	{ gpu_combined, "^c#94E2D5^%s^d^  ", NULL, 3000 },
 	/* Vol - 显示音量百分比 */
-	{ run_command,  "^c#F9E2AF^VOL %s%%   ^d^", "pamixer --get-volume 2>/dev/null || echo '0'", 1500 },
+	{ run_command,  "^c#F9E2AF^VOL %s%%   ^d^", "wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk '{print int($2 * 100)}'", 1500 },
 	/* DateTime - 优化：降低更新频率 */
 	{ datetime,     "^c#e979fc^%s^d^", "%m-%d %H:%M ", 5000 },
 	/* caps/num lock - 优化：降低更新频率 */
