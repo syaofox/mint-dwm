@@ -72,7 +72,7 @@ static const Rule rules[] = {
 	{ "Thunar", "thunar", "File Operation Progress", 0, 1, -1, 0.0, 0.0, 1 },
 	{ "org.gnome.FileRoller", "org.gnome.FileRoller", NULL, 0, 1, -1, 0.0, 0.0, 1 },
 	{ "tdxcfv", "tdxw.fak", NULL, 1 << 5, 0, -1, 0.0, 0.0, 0 },
-    { "xfce4-appfinder",   "Xfce4-appfinder",       NULL,       0,            1,           -1,    0.4,           0.0,         1 },
+    { "Xfce4-appfinder",   "xfce4-appfinder",       NULL,       0,            1,           -1,    0.4,           0.0,         1 },
 
 };
 
@@ -112,9 +112,9 @@ static const char *termcmd[]  = { "/usr/bin/x-terminal-emulator",  NULL };
 static const char *filecmd[]  = { "/usr/bin/thunar",  NULL };
 static const char *screenshotcmd[]  = { "/usr/bin/xfce4-screenshooter", "-r", NULL };
 static const char *wallpapercmd[]  = { "/bin/sh", "-c", "$HOME/.config/mint-dwm/scripts/wallpaper-next.sh", NULL };
-static const char *browsercmd[]  = { "/bin/sh", "-c", "env LANGUAGE=zh_CN LANG=zh_CN.UTF-8 LC_ALL=zh_CN.UTF-8 brave --unsafely-treat-insecure-origin-as-secure=http://10.10.10.5:8080/", NULL };
+static const char *browsercmd[]  = { "/bin/sh", "-c", "env LANGUAGE=zh_CN LANG=zh_CN.UTF-8 LC_ALL=zh_CN.UTF-8 /usr/bin/brave-browser-stable --unsafely-treat-insecure-origin-as-secure=http://10.10.10.5:8080/", NULL };
 static const char *slockcmd[]  = { "/bin/sh", "-c", "slock", NULL };
-static const char *fsearchcmd[]  = { "/usr/bin/fsearch", NULL };
+static const char *fsearchcmd[]  = { "/bin/sh", "-c", "flatpak run --branch=stable --arch=x86_64 --command=fsearch io.github.cboxdoerfer.FSearch", NULL };
 static const char *upvol[]   = { "/bin/sh", "-c", "$HOME/.config/mint-dwm/scripts/volume.sh up",   NULL };
 static const char *downvol[] = { "/bin/sh", "-c", "$HOME/.config/mint-dwm/scripts/volume.sh down", NULL };
 static const char *mutevol[] = { "/bin/sh", "-c", "$HOME/.config/mint-dwm/scripts/volume.sh mute", NULL };
