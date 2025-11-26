@@ -17,6 +17,7 @@ static const unsigned int gappov    = 4;       /* 窗口与屏幕边缘之间的
 static       int smartgaps          = 0;        /* 1 表示只有一个窗口时不显示外边距 */
 static const int showbar            = 1;        /* 0 表示不显示状态栏 */
 static const int topbar             = 1;        /* 0 表示状态栏在底部 */
+static const int focusonhover       = 0;        /* 1: 鼠标悬停切换焦点, 0: 不自动切换 */
 static const int barheight          = 30;        /* 0 表示自动高度 */
 static const unsigned int tagunderlineheight = 2; /* 选中标签下指示器的高度 */
 static const unsigned int tagunderlinepad    = 4; /* 指示器的水平内边距 */
