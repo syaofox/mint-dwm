@@ -107,7 +107,8 @@ static const Layout layouts[] = {
 
 /* commands */
 static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() */
-static const char *dmenucmd[] = { "/usr/bin/xfce4-appfinder", NULL };
+static const char *appfindercmd[] = { "/usr/bin/xfce4-appfinder", NULL };
+static const char *dmenucmd[] = { "dmenu", NULL };
 static const char *termcmd[]  = { "/usr/bin/x-terminal-emulator",  NULL };
 static const char *filecmd[]  = { "/usr/bin/thunar",  NULL };
 static const char *screenshotcmd[]  = { "/usr/bin/xfce4-screenshooter", "-r", "-c", NULL };
@@ -118,6 +119,7 @@ static const char *fsearchcmd[]  = { "/bin/sh", "-c", "flatpak run --branch=stab
 static const char *upvol[]   = { "/bin/sh", "-c", "$HOME/.config/mint-dwm/scripts/volume.sh up",   NULL };
 static const char *downvol[] = { "/bin/sh", "-c", "$HOME/.config/mint-dwm/scripts/volume.sh down", NULL };
 static const char *mutevol[] = { "/bin/sh", "-c", "$HOME/.config/mint-dwm/scripts/volume.sh mute", NULL };
+static const char *sysact[] = { "/bin/sh", "-c", "$HOME/.config/mint-dwm/scripts/sysact.sh", NULL };
 
 
 /* autostart */
@@ -127,7 +129,8 @@ static const char *const autostart[] = {
 
 static const Key keys[] = {
 	/* modifier                     key        function        argument */
-	{ MODKEY,                       XK_space,  spawn,          {.v = dmenucmd } }, /* 启动菜单 */
+	{ MODKEY,                       XK_space,  spawn,          {.v = appfindercmd } }, /* 启动菜单 */
+	{ MODKEY,                       XK_p,      spawn,          {.v = dmenucmd } }, /* 启动菜单 */
 	{ MODKEY,                       XK_Return, spawn,          {.v = termcmd } }, /* 启动终端 */
     { MODKEY,                       XK_e,      spawn,          {.v = filecmd } }, /* 启动thunar */
     { MODKEY,                       XK_a,      spawn,          {.v = screenshotcmd } }, /* 截图 */
@@ -138,6 +141,7 @@ static const Key keys[] = {
 	{ 0,                            XF86XK_AudioMute,        spawn, {.v = mutevol } },
 	{ 0,                            XF86XK_AudioLowerVolume, spawn, {.v = downvol } },
 	{ 0,                            XF86XK_AudioRaiseVolume, spawn, {.v = upvol } },
+	{ ControlMask|Mod1Mask,         XK_Delete, spawn,          {.v = sysact } },
 	{ MODKEY,                       XK_b,      togglebar,      {0} }, /* 切换状态栏显示 */
 	{ MODKEY,                       XK_j,      focusstack,     {.i = +1 } }, /* 聚焦下一个窗口 */
 	{ MODKEY,                       XK_k,      focusstack,     {.i = -1 } }, /* 聚焦上一个窗口 */

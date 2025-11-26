@@ -41,7 +41,7 @@ sudo apt install build-essential libx11-dev libxinerama-dev libxft-dev libxrandr
 
 为了获得完整的体验，需要安装以下软件：
 
-*   **基础工具**: `dunst` (通知), `feh` (壁纸), `pasystray` (PulseAudio 托盘), `picom` (可选，合成器), `wireplumber` (提供 wpctl 音量控制) `xfce4-clipman` (剪贴板)
+*   **基础工具**: `dunst` (通知), `feh` (壁纸), `pasystray` (PulseAudio 托盘), `picom` (可选，合成器), `wireplumber` (提供 wpctl 音量控制), `xfce4-clipman` (剪贴板), `xdotool` (模拟按键)
 *   **XFCE 组件**: `xfce4-appfinder` (应用启动器), `xfce4-screenshooter` (截图), `thunar` (文件管理器)
 *   **其他**: `libpolkit-gnome-1-0` (Polkit 代理), `gnome-keyring`
 *   **浏览器**: `brave-browser` (配置中默认使用，可修改)
@@ -114,6 +114,7 @@ Type=XSession
 | `Mod + a` | 截图 | `xfce4-screenshooter` |
 | `Mod + Shift + l` | 锁屏 | `slock` |
 | `Mod + Shift + q` | 退出 dwm (注销) | |
+| `Ctrl + Alt + Del` | 打开系统电源菜单 (锁屏/挂起/注销/重启/关机) | `sysact.sh` |
 
 ### 窗口管理
 
@@ -155,6 +156,11 @@ Type=XSession
 ### 音量控制 (`scripts/volume.sh`)
 *   使用 `wpctl` (PipeWire) 控制音量。
 *   使用 `dunstify` 发送带有音量进度条和图标的通知。
+
+### 电源菜单 (`scripts/sysact.sh`)
+*   提供锁屏、挂起、注销、重启、关机选项。
+*   支持 `rofi` 或 `dmenu` 显示。
+*   注销功能使用 `xdotool` 模拟按键退出，安全稳妥。
 
 ## 自定义
 
