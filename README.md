@@ -41,7 +41,7 @@ sudo apt install build-essential libx11-dev libxinerama-dev libxft-dev libxrandr
 
 为了获得完整的体验，需要安装以下软件：
 
-*   **基础工具**: `dunst` (通知), `feh` (壁纸), `pasystray` (PulseAudio 托盘), `picom` (可选，合成器), `wireplumber` (提供 wpctl 音量控制)
+*   **基础工具**: `dunst` (通知), `feh` (壁纸), `pasystray` (PulseAudio 托盘), `picom` (可选，合成器), `wireplumber` (提供 wpctl 音量控制) `xfce4-clipman` (剪贴板)
 *   **XFCE 组件**: `xfce4-appfinder` (应用启动器), `xfce4-screenshooter` (截图), `thunar` (文件管理器)
 *   **其他**: `libpolkit-gnome-1-0` (Polkit 代理), `gnome-keyring`
 *   **浏览器**: `brave-browser` (配置中默认使用，可修改)

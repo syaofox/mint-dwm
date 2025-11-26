@@ -110,7 +110,7 @@ static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() 
 static const char *dmenucmd[] = { "/usr/bin/xfce4-appfinder", NULL };
 static const char *termcmd[]  = { "/usr/bin/x-terminal-emulator",  NULL };
 static const char *filecmd[]  = { "/usr/bin/thunar",  NULL };
-static const char *screenshotcmd[]  = { "/usr/bin/xfce4-screenshooter", "-r", NULL };
+static const char *screenshotcmd[]  = { "/usr/bin/xfce4-screenshooter", "-r", "-c", NULL };
 static const char *wallpapercmd[]  = { "/bin/sh", "-c", "$HOME/.config/mint-dwm/scripts/wallpaper-next.sh", NULL };
 static const char *browsercmd[]  = { "/bin/sh", "-c", "env LANGUAGE=zh_CN LANG=zh_CN.UTF-8 LC_ALL=zh_CN.UTF-8 /usr/bin/brave-browser-stable --unsafely-treat-insecure-origin-as-secure=http://10.10.10.5:8080/", NULL };
 static const char *slockcmd[]  = { "/bin/sh", "-c", "slock", NULL };
