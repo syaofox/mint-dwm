@@ -43,7 +43,7 @@ static const char *colors[][3]      = {
 
 
 /* tagging */
-static const char *tags[] = { "", "", "3", "4", "5", "󰠟", "󰟀", "", "󰓦" };
+static const char *tags[] = { "", "", "3", "4", "", "󰠟", "󰟀", "", "󰓦" };
 
 static const Rule rules[] = {
 	/* xprop(1):
@@ -76,6 +76,7 @@ static const Rule rules[] = {
     { "Xfce4-appfinder",   "xfce4-appfinder",       NULL,       0,            1,           -1,    0.4,           0.0,         1 },
 	{ "Io.github.celluloid_player.Celluloid", NULL, NULL,       0,            1,           -1,    0.0,           0.0,         1 },
 	{ "Xviewer",           NULL,       NULL,       0,            1,           -1,    0.0,           0.0,         1 },
+	{ "fr.handbrake.ghb", NULL, NULL, 1 << 4, 0, -1, 0.0, 0.0, 0 },
 
 };
 
