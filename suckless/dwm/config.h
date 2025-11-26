@@ -108,7 +108,7 @@ static const Layout layouts[] = {
 /* commands */
 static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() */
 static const char *appfindercmd[] = { "/usr/bin/xfce4-appfinder", NULL };
-static const char *dmenucmd[] = { "dmenu", NULL };
+static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", col_gray1, "-nf", col_gray3, "-sb", col_cyan, "-sf", col_gray3, NULL };
 static const char *termcmd[]  = { "/usr/bin/x-terminal-emulator",  NULL };
 static const char *filecmd[]  = { "/usr/bin/thunar",  NULL };
 static const char *screenshotcmd[]  = { "/usr/bin/xfce4-screenshooter", "-r", "-c", NULL };
