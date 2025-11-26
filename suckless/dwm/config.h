@@ -110,6 +110,8 @@ static const char *dmenucmd[] = { "/usr/bin/xfce4-appfinder", NULL };
 static const char *termcmd[]  = { "/usr/bin/x-terminal-emulator",  NULL };
 static const char *filecmd[]  = { "/usr/bin/thunar",  NULL };
 static const char *screenshotcmd[]  = { "/usr/bin/xfce4-screenshooter", "-r", NULL };
+static const char *wallpapercmd[]  = { "/bin/sh", "-c", "$HOME/.config/mint-dwm/scripts/wallpaper-next.sh", NULL };
+static const char *browsercmd[]  = { "/bin/sh", "-c", "env LANGUAGE=zh_CN LANG=zh_CN.UTF-8 LC_ALL=zh_CN.UTF-8 brave --unsafely-treat-insecure-origin-as-secure=http://10.10.10.5:8080/", NULL };
 
 
 
@@ -124,6 +126,8 @@ static const Key keys[] = {
 	{ MODKEY,                       XK_Return, spawn,          {.v = termcmd } }, /* 启动终端 */
     { MODKEY,                       XK_r,      spawn,          {.v = filecmd } }, /* 启动thunar */
     { MODKEY,                       XK_a,      spawn,          {.v = screenshotcmd } }, /* 截图 */
+    { MODKEY|ShiftMask,             XK_w,      spawn,          {.v = wallpapercmd } }, /* 切换壁纸 */
+    { MODKEY,                       XK_w,      spawn,          {.v = browsercmd } }, /* 启动浏览器 */
 	{ MODKEY,                       XK_b,      togglebar,      {0} }, /* 切换状态栏显示 */
 	{ MODKEY,                       XK_j,      focusstack,     {.i = +1 } }, /* 聚焦下一个窗口 */
 	{ MODKEY,                       XK_k,      focusstack,     {.i = -1 } }, /* 聚焦上一个窗口 */

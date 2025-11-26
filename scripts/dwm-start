@@ -11,9 +11,9 @@ echo "--- dwm startup at $(date) ---"
 
 
 # 定义变量
-USER_NAME="syaofox"
-WALLPAPER_PATH="/home/$USER_NAME/Pictures/wallpapers/black-nord.png"
-DUNSTRC_PATH="/home/$USER_NAME/.config/mint-dwm/config/dunstrc"
+DUNSTRC_PATH="$HOME/.config/mint-dwm/config/dunstrc"
+STATE_FILE="$HOME/.cache/current_wallpaper"
+WALL_DIR="$HOME/Pictures/wallpapers"
 
 # 安全启动函数
 start_once() {
@@ -43,7 +43,18 @@ start_once /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
 start_once slstatus
 start_once pasystray --notify=off
 start_once dunst -conf "$DUNSTRC_PATH"
-start_once feh --bg-scale "$WALLPAPER_PATH" >/dev/null 2>&1 &
+
+# 壁纸：恢复当前保存的壁纸
+if command -v feh >/dev/null 2>&1; then
+    STATE_FILE="$HOME/.cache/current_wallpaper"
+    if [ -f "$STATE_FILE" ] && [ -d "$WALL_DIR" ]; then
+        current_wall=$(cat "$STATE_FILE" 2>/dev/null)
+        if [ -n "$current_wall" ] && [ -f "$WALL_DIR/$current_wall" ]; then
+            feh --bg-scale "$WALL_DIR/$current_wall" >/dev/null 2>&1 &
+        fi
+    fi
+fi
+
 
 # 启动 dwm
 exec dwm
