@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # 环境变量
 export LANG=en_US.UTF-8
 export XMODIFIERS=@im=fcitx
@@ -38,10 +40,10 @@ fi
 
 
 # 提权代理
-start_once /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
+start_once /usr/lib/policykit-1-gnome/polkit-gnome-authentication-agent-1
 
 start_once slstatus
-start_once pasystray --notify=off
+start_once pasystray --notify=none
 start_once dunst -conf "$DUNSTRC_PATH"
 
 # 壁纸：恢复当前保存的壁纸
