@@ -1,4 +1,5 @@
 /* See LICENSE file for copyright and license details. */
+#include <X11/XF86keysym.h>
 
 /* appearance */
 static const unsigned int borderpx  = 2;        /* 窗口边框像素 */
@@ -112,7 +113,11 @@ static const char *filecmd[]  = { "/usr/bin/thunar",  NULL };
 static const char *screenshotcmd[]  = { "/usr/bin/xfce4-screenshooter", "-r", NULL };
 static const char *wallpapercmd[]  = { "/bin/sh", "-c", "$HOME/.config/mint-dwm/scripts/wallpaper-next.sh", NULL };
 static const char *browsercmd[]  = { "/bin/sh", "-c", "env LANGUAGE=zh_CN LANG=zh_CN.UTF-8 LC_ALL=zh_CN.UTF-8 brave --unsafely-treat-insecure-origin-as-secure=http://10.10.10.5:8080/", NULL };
-
+static const char *slockcmd[]  = { "/bin/sh", "-c", "slock", NULL };
+static const char *fsearchcmd[]  = { "/usr/bin/fsearch", NULL };
+static const char *upvol[]   = { "/bin/sh", "-c", "$HOME/.config/mint-dwm/scripts/volume.sh up",   NULL };
+static const char *downvol[] = { "/bin/sh", "-c", "$HOME/.config/mint-dwm/scripts/volume.sh down", NULL };
+static const char *mutevol[] = { "/bin/sh", "-c", "$HOME/.config/mint-dwm/scripts/volume.sh mute", NULL };
 
 
 /* autostart */
@@ -124,10 +129,15 @@ static const Key keys[] = {
 	/* modifier                     key        function        argument */
 	{ MODKEY,                       XK_space,  spawn,          {.v = dmenucmd } }, /* 启动菜单 */
 	{ MODKEY,                       XK_Return, spawn,          {.v = termcmd } }, /* 启动终端 */
-    { MODKEY,                       XK_r,      spawn,          {.v = filecmd } }, /* 启动thunar */
+    { MODKEY,                       XK_e,      spawn,          {.v = filecmd } }, /* 启动thunar */
     { MODKEY,                       XK_a,      spawn,          {.v = screenshotcmd } }, /* 截图 */
     { MODKEY|ShiftMask,             XK_w,      spawn,          {.v = wallpapercmd } }, /* 切换壁纸 */
     { MODKEY,                       XK_w,      spawn,          {.v = browsercmd } }, /* 启动浏览器 */
+    { MODKEY|ShiftMask,             XK_l,      spawn,          {.v = slockcmd } }, /* 锁屏 */
+	{ MODKEY,                       XK_f,      spawn,          {.v = fsearchcmd } }, /* 搜索 */
+	{ 0,                            XF86XK_AudioMute,        spawn, {.v = mutevol } },
+	{ 0,                            XF86XK_AudioLowerVolume, spawn, {.v = downvol } },
+	{ 0,                            XF86XK_AudioRaiseVolume, spawn, {.v = upvol } },
 	{ MODKEY,                       XK_b,      togglebar,      {0} }, /* 切换状态栏显示 */
 	{ MODKEY,                       XK_j,      focusstack,     {.i = +1 } }, /* 聚焦下一个窗口 */
 	{ MODKEY,                       XK_k,      focusstack,     {.i = -1 } }, /* 聚焦上一个窗口 */
