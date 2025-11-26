@@ -73,6 +73,8 @@ static const Rule rules[] = {
 	{ "org.gnome.FileRoller", "org.gnome.FileRoller", NULL, 0, 1, -1, 0.0, 0.0, 1 },
 	{ "tdxcfv", "tdxw.fak", NULL, 1 << 5, 0, -1, 0.0, 0.0, 0 },
     { "Xfce4-appfinder",   "xfce4-appfinder",       NULL,       0,            1,           -1,    0.4,           0.0,         1 },
+	{ "Io.github.celluloid_player.Celluloid", NULL, NULL,       0,            1,           -1,    0.0,           0.0,         1 },
+	{ "Xviewer",           NULL,       NULL,       0,            1,           -1,    0.0,           0.0,         1 },
 
 };
 
