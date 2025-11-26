@@ -43,7 +43,7 @@ fi
 start_once /usr/lib/policykit-1-gnome/polkit-gnome-authentication-agent-1
 start_once slstatus
 start_once xfce4-clipman
-start_once pasystray --notify=none
+start_once pasystray
 start_once dunst -conf "$DUNSTRC_PATH"
 
 # 壁纸：恢复当前保存的壁纸
