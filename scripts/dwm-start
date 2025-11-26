@@ -41,7 +41,7 @@ fi
 
 # 提权代理
 start_once /usr/lib/policykit-1-gnome/polkit-gnome-authentication-agent-1
-
+start_once slstatus
 start_once xfce4-clipman
 start_once pasystray --notify=none
 start_once dunst -conf "$DUNSTRC_PATH"
