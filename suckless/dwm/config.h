@@ -122,6 +122,7 @@ static const char *upvol[]   = { "/bin/sh", "-c", "$HOME/.config/mint-dwm/script
 static const char *downvol[] = { "/bin/sh", "-c", "$HOME/.config/mint-dwm/scripts/volume.sh down", NULL };
 static const char *mutevol[] = { "/bin/sh", "-c", "$HOME/.config/mint-dwm/scripts/volume.sh mute", NULL };
 static const char *sysact[] = { "/bin/sh", "-c", "$HOME/.config/mint-dwm/scripts/sysact.sh", NULL };
+static const char *clipman[] = { "/bin/sh", "-c", "xfce4-clipman-history", NULL };
 
 
 /* autostart */
@@ -146,6 +147,7 @@ static const Key keys[] = {
     { MODKEY,                       XK_w,      spawn,          {.v = browsercmd } }, /* 启动浏览器 */
     { MODKEY|ShiftMask,             XK_l,      spawn,          {.v = slockcmd } }, /* 锁屏 */
 	{ MODKEY,                       XK_f,      spawn,          {.v = fsearchcmd } }, /* 搜索 */
+	{ MODKEY,                       XK_v,      spawn,          {.v = clipman } }, /* 剪贴板 */
 	{ 0,                            XF86XK_AudioMute,        spawn, {.v = mutevol } },
 	{ 0,                            XF86XK_AudioLowerVolume, spawn, {.v = downvol } },
 	{ 0,                            XF86XK_AudioRaiseVolume, spawn, {.v = upvol } },
