@@ -34,7 +34,7 @@
 
 ```bash
 sudo apt update
-sudo apt install build-essential libx11-dev libxinerama-dev libxft-dev libxrandr-dev
+sudo apt install build-essential python3-dev libx11-dev libxinerama-dev libxft-dev libxrandr-dev 
 ```
 
 ### 运行依赖
