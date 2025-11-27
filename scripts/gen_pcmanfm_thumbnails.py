@@ -5,6 +5,7 @@ import hashlib
 import urllib.parse
 import subprocess
 import shutil
+import struct
 
 # 配置
 CACHE_DIR = os.path.expanduser("~/.cache/thumbnails/normal")
@@ -45,6 +46,49 @@ def get_thumb_info(file_path):
     
     return uri, thumb_path
 
+def get_png_mtime(png_path):
+    """
+    快速读取 PNG 文件中的 Thumb::MTime 属性，无需启动外部进程。
+    """
+    try:
+        with open(png_path, 'rb') as f:
+            # Check signature
+            if f.read(8) != b'\x89PNG\r\n\x1a\n':
+                return None
+            
+            while True:
+                # Read chunk length and type
+                buf = f.read(8)
+                if len(buf) < 8:
+                    break
+                length, type_code = struct.unpack('>I4s', buf)
+                
+                if type_code == b'tEXt':
+                    # Read data
+                    data = f.read(length)
+                    # tEXt format: Keyword + null + Text
+                    try:
+                        # 有些时候可能没有 null 或者格式不对，split 后检查长度
+                        parts = data.split(b'\0', 1)
+                        if len(parts) == 2:
+                            keyword, text = parts
+                            if keyword == b'Thumb::MTime':
+                                return int(text)
+                    except (ValueError, UnicodeDecodeError):
+                        pass
+                else:
+                    # Skip data
+                    f.seek(length, 1)
+                
+                # Skip CRC
+                f.seek(4, 1)
+                
+                if type_code == b'IEND':
+                    break
+    except Exception:
+        pass
+    return None
+
 def generate_thumbnail(file_path):
     if not os.path.exists(file_path):
         return False
@@ -56,13 +100,10 @@ def generate_thumbnail(file_path):
         # 检查缓存是否有效
         if os.path.exists(thumb_path):
             try:
-                # 读取缩略图的 Thumb::MTime
-                check_cmd = ["identify", "-format", "%[Thumb::MTime]", thumb_path]
-                res = subprocess.run(check_cmd, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, encoding='utf-8')
-                if res.returncode == 0:
-                    thumb_mtime_str = res.stdout.strip()
-                    if thumb_mtime_str and int(thumb_mtime_str) == mtime:
-                        return True
+                # 优化：直接解析 PNG 二进制数据读取 MTime，比调用 identify 快数百倍
+                thumb_mtime = get_png_mtime(thumb_path)
+                if thumb_mtime == mtime:
+                    return True
             except Exception:
                 pass
 
