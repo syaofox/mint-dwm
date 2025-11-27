@@ -175,15 +175,19 @@ def main():
 
     print(f"# 正在分析 {total} 个文件...")
     
+    # 计算更新步长，确保UI更新不超过10次
+    step = max(1, (total + 9) // 10)
+
     count = 0
     for filepath in targets:
         filename = os.path.basename(filepath)
         
         # 更新进度条
-        percent = int((count / total) * 100)
-        print(f"{percent}")
-        print(f"# 正在生成: {filename}")
-        sys.stdout.flush()
+        if count % step == 0:
+            percent = int((count / total) * 100)
+            print(f"{percent}")
+            print(f"# 正在处理 ({count}/{total}): {filename}")
+            sys.stdout.flush()
         
         generate_thumbnail(filepath)
         count += 1
