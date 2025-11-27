@@ -8,7 +8,7 @@ Profiles=profile-zero;
 
 [X-Action-Profile profile-zero]
 MimeTypes=all/allfiles;
-Exec=/home/syaofox/.config/mint-dwm/scripts/remove-duplicates.sh %F
+Exec=/home/syaofox/.config/mint-dwm/scripts/pcmanfm-remove-duplicates.sh %F
 Name=Default profile
 SelectionCount=>1
 
