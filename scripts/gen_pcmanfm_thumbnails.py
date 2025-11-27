@@ -5,7 +5,6 @@ import hashlib
 import urllib.parse
 import subprocess
 import shutil
-import struct
 
 # 配置
 CACHE_DIR = os.path.expanduser("~/.cache/thumbnails/normal")
@@ -48,71 +47,12 @@ def get_thumb_info(file_path):
     
     return uri, thumb_path, large_thumb_path
 
-def get_png_mtime(png_path):
-    """
-    尝试读取 PNG 文件中的 Thumb::MTime 属性。
-    优先使用纯 Python 二进制解析 (极速)，
-    如果解析失败或未找到，回退调用 identify (兼容性好但稍慢)。
-    """
-    mtime = None
-    
-    # 1. Fast path: Native Python parsing (supports tEXt chunks)
-    try:
-        with open(png_path, 'rb') as f:
-            if f.read(8) == b'\x89PNG\r\n\x1a\n':
-                while True:
-                    buf = f.read(8)
-                    if len(buf) < 8: break
-                    length, type_code = struct.unpack('>I4s', buf)
-                    
-                    if type_code == b'tEXt':
-                        data = f.read(length)
-                        try:
-                            parts = data.split(b'\0', 1)
-                            if len(parts) == 2:
-                                keyword, text = parts
-                                if keyword == b'Thumb::MTime':
-                                    # 兼容处理：有些系统可能存为浮点数字符串
-                                    mtime = int(float(text.decode('utf-8', errors='ignore')))
-                                    return mtime
-                        except Exception:
-                            pass
-                    else:
-                        f.seek(length, 1) # skip data
-                    
-                    f.seek(4, 1) # skip crc
-                    if type_code == b'IEND': break
-    except Exception:
-        pass
-
-    # 2. Slow path: Fallback to identify (supports zTXt, iTXt etc.)
-    if mtime is None:
-        try:
-            cmd = ["identify", "-format", "%[Thumb::MTime]", png_path]
-            # 使用 subprocess 运行，捕获输出
-            res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, encoding='utf-8')
-            if res.returncode == 0:
-                val = res.stdout.strip()
-                if val:
-                    return int(float(val))
-        except Exception:
-            pass
-            
-    return None
-
 def check_cache_validity(thumb_path, source_mtime):
     """
     辅助函数：检查指定路径的缩略图是否有效
+    简化模式：只要缩略图存在即视为有效，忽略时间戳检查。
     """
-    if os.path.exists(thumb_path):
-        try:
-            # 读取缩略图的 Thumb::MTime
-            thumb_mtime = get_png_mtime(thumb_path)
-            if thumb_mtime is not None and thumb_mtime == source_mtime:
-                return True
-        except Exception:
-            pass
-    return False
+    return os.path.exists(thumb_path)
 
 def generate_thumbnail(file_path):
     if not os.path.exists(file_path):
