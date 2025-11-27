@@ -18,7 +18,7 @@ def check_dependencies():
     missing = []
     if not shutil.which("ffmpeg"):
         missing.append("ffmpeg")
-    if not shutil.which("convert") or not shutil.which("mogrify"):
+    if not shutil.which("convert") or not shutil.which("mogrify") or not shutil.which("identify"):
         missing.append("imagemagick")
     
     if missing:
@@ -53,6 +53,19 @@ def generate_thumbnail(file_path):
         uri, thumb_path = get_thumb_info(file_path)
         mtime = int(os.path.getmtime(file_path))
         
+        # 检查缓存是否有效
+        if os.path.exists(thumb_path):
+            try:
+                # 读取缩略图的 Thumb::MTime
+                check_cmd = ["identify", "-format", "%[Thumb::MTime]", thumb_path]
+                res = subprocess.run(check_cmd, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, encoding='utf-8')
+                if res.returncode == 0:
+                    thumb_mtime_str = res.stdout.strip()
+                    if thumb_mtime_str and int(thumb_mtime_str) == mtime:
+                        return True
+            except Exception:
+                pass
+
         # 临时文件
         temp_thumb = thumb_path + ".tmp.png"
         
@@ -88,6 +101,7 @@ def generate_thumbnail(file_path):
             cmd = [
                 "convert", file_path + "[0]", # [0] 取第一帧(防gif过大)
                 "-thumbnail", "128x128",
+                "-strip", # 移除元数据减小体积
                 "-auto-orient", # 自动旋转
                 temp_thumb
             ]
@@ -101,11 +115,10 @@ def generate_thumbnail(file_path):
             # 注意：PCManFM 极其依赖这两个属性
             # 确保路径中的空格被正确处理，subprocess 列表参数会自动处理
             
-            # 先 strip 掉可能存在的无用信息
+            # 先 strip 掉可能存在的无用信息 (已经在生成阶段strip了，或者ffmpeg生成本身就干净)
             # 然后添加属性
             meta_cmd = [
                 "mogrify",
-                "-strip",
                 "-set", "Thumb::URI", uri,
                 "-set", "Thumb::MTime", str(mtime),
                 "-set", "Software", "GNOME::ThumbnailFactory", 
