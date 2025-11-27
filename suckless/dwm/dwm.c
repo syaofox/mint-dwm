@@ -198,6 +198,7 @@ static void clientmessage(XEvent *e);
 static void configure(Client *c);
 static void configurenotify(XEvent *e);
 static void configurerequest(XEvent *e);
+static void cyclelayout(const Arg *arg);
 static Monitor *createmon(void);
 static void destroynotify(XEvent *e);
 static void detach(Client *c);
@@ -2046,6 +2047,27 @@ setlayout(const Arg *arg)
 		arrange(selmon);
 	else
 		drawbar(selmon);
+}
+
+void
+cyclelayout(const Arg *arg)
+{
+	int i;
+	/* 找到当前布局的索引 */
+	for(i = 0; i < LENGTH(layouts) && &layouts[i] != selmon->lt[selmon->sellt]; i++);
+	
+	/* 计算下一个索引 */
+	if (arg->i > 0) {
+		i++;
+		if (i >= LENGTH(layouts))
+			i = 0;
+	} else {
+		i--;
+		if (i < 0)
+			i = LENGTH(layouts) - 1;
+	}
+	
+	setlayout(&((Arg) { .v = &layouts[i] }));
 }
 
 /* arg > 1.0 will set mfact absolutely */

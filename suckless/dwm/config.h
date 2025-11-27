@@ -93,8 +93,8 @@ static const int refreshrate = 120;  /* 客户端移动/调整大小时的刷新
 static const Layout layouts[] = {
 	/* symbol     arrange function */
 	{ "[]=",      tile },    /* 第一个条目是默认值 */
-	{ "><>",      NULL },    /* 没有布局函数意味着浮动行为 */
 	{ "[M]",      monocle },
+	{ "><>",      NULL },    /* 没有布局函数意味着浮动行为 */
 };
 
 /* key definitions */
@@ -169,7 +169,8 @@ static const Key keys[] = {
 	{ MODKEY|ShiftMask,             XK_0,      defaultgaps,    {0} }, /* 恢复默认间距 */
 	{ MODKEY,                       XK_Tab,    viewnexttag,    {0} }, /* 切换到下一个标签 */
 	{ MODKEY,            		    XK_q,      killclient,     {0} }, /* 关闭当前窗口 */
-	{ MODKEY,            			XK_m,  	   setlayout,      {0} }, /* 切换布局 */
+	{ MODKEY,            			XK_m,  	   cyclelayout,    {.i = +1} }, /* 循环切换布局 */
+	{ MODKEY,            			XK_t,  	   setlayout,      {.v = &layouts[0]} }, /* 强制切换回 Tile 布局 */
 	TAGKEYS(                        XK_1,                      0)
 	TAGKEYS(                        XK_2,                      1)
 	TAGKEYS(                        XK_3,                      2)
@@ -186,8 +187,8 @@ static const Key keys[] = {
 /* 点击区域可以是 ClkTagBar, ClkLtSymbol, ClkStatusText, ClkWinTitle, ClkClientWin, 或 ClkRootWin */
 static const Button buttons[] = {
 	/* click                event mask      button          function        argument */
-	{ ClkLtSymbol,          0,              Button1,        setlayout,      {0} }, /* 点击布局符号切换布局 */
-	{ ClkLtSymbol,          0,              Button3,        setlayout,      {.v = &layouts[2]} }, /* 右键点击布局符号切换到 monocle 布局 */
+	{ ClkLtSymbol,          0,              Button1,        cyclelayout,    {.i = +1} }, /* 点击布局符号循环切换布局 */
+	{ ClkLtSymbol,          0,              Button3,        setlayout,      {.v = &layouts[1]} }, /* 右键点击布局符号切换到 monocle 布局 */
 	{ ClkWinTitle,          0,              Button2,        zoom,           {0} }, /* 中键点击窗口标题栏交换主窗口 */
 	{ ClkStatusText,        0,              Button2,        spawn,          {.v = termcmd } }, /* 中键点击状态栏启动终端 */
 	{ ClkClientWin,         MODKEY,         Button1,        movemouse,      {0} }, /* 按住 MODKEY 拖动窗口 */
