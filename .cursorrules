@@ -1,0 +1,4 @@
+# Rules for AI Assistant
+
+- Do NOT modify `suckless/dwm/config.def.h`. Only modify `suckless/dwm/config.h` for configuration changes.
+
