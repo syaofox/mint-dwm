@@ -14,6 +14,7 @@ echo "--- dwm startup at $(date) ---"
 
 # 定义变量
 DUNSTRC_PATH="$HOME/.config/mint-dwm/config/dunstrc"
+PICOM_PATH="$HOME/.config/mint-dwm/config/picom.conf"
 STATE_FILE="$HOME/.cache/current_wallpaper"
 WALL_DIR="$HOME/Pictures/wallpapers"
 
@@ -41,6 +42,7 @@ fi
 
 # 提权代理
 start_once /usr/lib/policykit-1-gnome/polkit-gnome-authentication-agent-1
+start_once picom -b --config "$PICOM_PATH"
 start_once slstatus
 start_once xfce4-clipman
 start_once pasystray
