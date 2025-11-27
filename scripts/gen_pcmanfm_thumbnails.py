@@ -43,69 +43,93 @@ def get_thumb_info(file_path):
     
     # 目标路径 (默认使用 normal 128x128)
     thumb_path = os.path.join(CACHE_DIR, md5_hash + ".png")
+    # 检查是否存在于 large 目录 (系统可能已生成大图)
+    large_thumb_path = os.path.join(LARGE_CACHE_DIR, md5_hash + ".png")
     
-    return uri, thumb_path
+    return uri, thumb_path, large_thumb_path
 
 def get_png_mtime(png_path):
     """
-    快速读取 PNG 文件中的 Thumb::MTime 属性，无需启动外部进程。
+    尝试读取 PNG 文件中的 Thumb::MTime 属性。
+    优先使用纯 Python 二进制解析 (极速)，
+    如果解析失败或未找到，回退调用 identify (兼容性好但稍慢)。
     """
+    mtime = None
+    
+    # 1. Fast path: Native Python parsing (supports tEXt chunks)
     try:
         with open(png_path, 'rb') as f:
-            # Check signature
-            if f.read(8) != b'\x89PNG\r\n\x1a\n':
-                return None
-            
-            while True:
-                # Read chunk length and type
-                buf = f.read(8)
-                if len(buf) < 8:
-                    break
-                length, type_code = struct.unpack('>I4s', buf)
-                
-                if type_code == b'tEXt':
-                    # Read data
-                    data = f.read(length)
-                    # tEXt format: Keyword + null + Text
-                    try:
-                        # 有些时候可能没有 null 或者格式不对，split 后检查长度
-                        parts = data.split(b'\0', 1)
-                        if len(parts) == 2:
-                            keyword, text = parts
-                            if keyword == b'Thumb::MTime':
-                                return int(text)
-                    except (ValueError, UnicodeDecodeError):
-                        pass
-                else:
-                    # Skip data
-                    f.seek(length, 1)
-                
-                # Skip CRC
-                f.seek(4, 1)
-                
-                if type_code == b'IEND':
-                    break
+            if f.read(8) == b'\x89PNG\r\n\x1a\n':
+                while True:
+                    buf = f.read(8)
+                    if len(buf) < 8: break
+                    length, type_code = struct.unpack('>I4s', buf)
+                    
+                    if type_code == b'tEXt':
+                        data = f.read(length)
+                        try:
+                            parts = data.split(b'\0', 1)
+                            if len(parts) == 2:
+                                keyword, text = parts
+                                if keyword == b'Thumb::MTime':
+                                    # 兼容处理：有些系统可能存为浮点数字符串
+                                    mtime = int(float(text.decode('utf-8', errors='ignore')))
+                                    return mtime
+                        except Exception:
+                            pass
+                    else:
+                        f.seek(length, 1) # skip data
+                    
+                    f.seek(4, 1) # skip crc
+                    if type_code == b'IEND': break
     except Exception:
         pass
+
+    # 2. Slow path: Fallback to identify (supports zTXt, iTXt etc.)
+    if mtime is None:
+        try:
+            cmd = ["identify", "-format", "%[Thumb::MTime]", png_path]
+            # 使用 subprocess 运行，捕获输出
+            res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, encoding='utf-8')
+            if res.returncode == 0:
+                val = res.stdout.strip()
+                if val:
+                    return int(float(val))
+        except Exception:
+            pass
+            
     return None
+
+def check_cache_validity(thumb_path, source_mtime):
+    """
+    辅助函数：检查指定路径的缩略图是否有效
+    """
+    if os.path.exists(thumb_path):
+        try:
+            # 读取缩略图的 Thumb::MTime
+            thumb_mtime = get_png_mtime(thumb_path)
+            if thumb_mtime is not None and thumb_mtime == source_mtime:
+                return True
+        except Exception:
+            pass
+    return False
 
 def generate_thumbnail(file_path):
     if not os.path.exists(file_path):
         return False
 
     try:
-        uri, thumb_path = get_thumb_info(file_path)
+        uri, thumb_path, large_thumb_path = get_thumb_info(file_path)
         mtime = int(os.path.getmtime(file_path))
+        file_size = os.path.getsize(file_path)
         
-        # 检查缓存是否有效
-        if os.path.exists(thumb_path):
-            try:
-                # 优化：直接解析 PNG 二进制数据读取 MTime，比调用 identify 快数百倍
-                thumb_mtime = get_png_mtime(thumb_path)
-                if thumb_mtime == mtime:
-                    return True
-            except Exception:
-                pass
+        # 检查缓存是否有效 (优先检查 normal, 然后检查 large)
+        # 如果系统已经生成了 large 缓存，我们也认为有效，不重复生成 normal
+        if check_cache_validity(thumb_path, mtime):
+            return True
+            
+        if check_cache_validity(large_thumb_path, mtime):
+            return True
 
         # 临时文件
         temp_thumb = thumb_path + ".tmp.png"
@@ -162,6 +186,7 @@ def generate_thumbnail(file_path):
                 "mogrify",
                 "-set", "Thumb::URI", uri,
                 "-set", "Thumb::MTime", str(mtime),
+                "-set", "Thumb::Size", str(file_size),
                 "-set", "Software", "GNOME::ThumbnailFactory", 
                 temp_thumb
             ]
