@@ -16,7 +16,7 @@ echo "--- dwm startup at $(date) ---"
 DUNSTRC_PATH="$HOME/.config/mint-dwm/config/dunstrc"
 PICOM_PATH="$HOME/.config/mint-dwm/config/picom.conf"
 STATE_FILE="$HOME/.cache/current_wallpaper"
-WALL_DIR="$HOME/Pictures/wallpapers"
+WALL_DIR="$HOME/.config/mint-dwm/walls"
 
 # 安全启动函数
 start_once() {

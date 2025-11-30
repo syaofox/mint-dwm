@@ -195,7 +195,7 @@ Type=XSession
 5.  恢复上次使用的壁纸。
 
 ### 壁纸切换 (`scripts/wallpaper-next.sh`)
-*   读取 `$HOME/Pictures/wallpapers` 目录下的图片。
+*   读取 `~/.config/mint-dwm/walls` 目录下的图片。
 *   使用 `feh` 顺序切换壁纸。
 *   状态保存在 `~/.cache/current_wallpaper`。
 
@@ -212,5 +212,5 @@ Type=XSession
 
 *   **修改配置**: 编辑 `suckless/dwm/config.h` 并重新运行 `sudo make clean install`。
 *   **状态栏信息**: 编辑 `suckless/slstatus/config.h` 修改显示的时间、CPU、内存等模块，并重新编译。
-*   **壁纸目录**: 默认指向 `~/Pictures/wallpapers`，可在脚本中修改。
+*   **壁纸目录**: 默认指向 `~/.config/mint-dwm/walls`，可在脚本中修改。
 

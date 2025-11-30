@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # 顺序切换 ~/.config/walls/ 下的壁纸
 
-WALL_DIR="$HOME/Pictures/wallpapers"
+WALL_DIR="$HOME/.config/mint-dwm/walls"
 STATE_DIR="$HOME/.cache"
 STATE_FILE="$STATE_DIR/current_wallpaper"
 
