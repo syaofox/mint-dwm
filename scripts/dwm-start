@@ -5,6 +5,7 @@ export LANG=en_US.UTF-8
 export XMODIFIERS=@im=fcitx
 export QT_IM_MODULE=fcitx
 export GTK_IM_MODULE=fcitx
+export SDL_IM_MODULE=fcitx
 
 # 日志记录
 # 将标准输出和标准错误重定向到 ~/.dwm.log
@@ -43,6 +44,7 @@ fi
 # 提权代理
 start_once /usr/lib/policykit-1-gnome/polkit-gnome-authentication-agent-1
 start_once picom -b --config "$PICOM_PATH"
+start_once fcitx5 -d
 start_once slstatus
 start_once xfce4-clipman
 start_once pasystray
