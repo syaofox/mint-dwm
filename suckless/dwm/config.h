@@ -110,23 +110,28 @@ static const Layout layouts[] = {
 /* helper for spawning shell commands in the pre dwm-5.0 fashion */
 #define SHCMD(cmd) { .v = (const char*[]){ "/bin/sh", "-c", cmd, NULL } }
 
+
+
 /* commands */
+#define SCRIPTS_DIR "$HOME/.config/mint-dwm/scripts/"
+#define CONFIG_DIR  "$HOME/.config/mint-dwm/config/"
+
 static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() */
 static const char *appfindercmd[] = { "/usr/bin/xfce4-appfinder", NULL };
-static const char *roficmd[] = { "/bin/sh", "-c", "rofi -show drun -theme $HOME/.config/mint-dwm/config/rofi-theme.rasi", NULL };
+static const char *roficmd[] = { "/bin/sh", "-c", "rofi -show drun -theme " CONFIG_DIR "rofi-theme.rasi", NULL };
 static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", col_gray1, "-nf", col_gray3, "-sb", col_cyan, "-sf", col_gray3, NULL };
 static const char *termcmd[]  = { "/usr/bin/x-terminal-emulator",  NULL };
 static const char *filecmd[]  = { "/usr/bin/pcmanfm",  NULL };
-static const char *screenshotcmd[]  = { "/bin/sh", "-c", "maim -s -u | xclip -selection clipboard -t image/png && notify-send '截图' '截图已保存到剪贴板'", NULL };
-static const char *screenshotsavedcmd[] = { "/bin/sh", "-c", "mkdir -p $HOME/Pictures/Screenshots && maim -s -u | tee \"$HOME/Pictures/Screenshots/Screenshot_$(date +%Y-%m-%d_%H-%M-%S).png\" | xclip -selection clipboard -t image/png && notify-send '截图' '已保存到剪贴板和 ~/Pictures/Screenshots/'", NULL };
-static const char *wallpapercmd[]  = { "/bin/sh", "-c", "$HOME/.config/mint-dwm/scripts/wallpaper-next.sh", NULL };
+static const char *screenshotcmd[]  = { "/bin/sh", "-c", SCRIPTS_DIR "screenshot.sh copy", NULL };
+static const char *screenshotsavedcmd[] = { "/bin/sh", "-c", SCRIPTS_DIR "screenshot.sh save", NULL };
+static const char *wallpapercmd[]  = { "/bin/sh", "-c", SCRIPTS_DIR "wallpaper-next.sh", NULL };
 static const char *browsercmd[]  = { "/bin/sh", "-c", "env LANGUAGE=zh_CN LANG=zh_CN.UTF-8 LC_ALL=zh_CN.UTF-8 /usr/bin/brave-browser-stable --unsafely-treat-insecure-origin-as-secure=http://10.10.10.5:8080/", NULL };
 static const char *slockcmd[]  = { "/bin/sh", "-c", "slock", NULL };
 static const char *fsearchcmd[]  = { "/bin/sh", "-c", "flatpak run --branch=stable --arch=x86_64 --command=fsearch io.github.cboxdoerfer.FSearch", NULL };
-static const char *upvol[]   = { "/bin/sh", "-c", "$HOME/.config/mint-dwm/scripts/volume.sh up",   NULL };
-static const char *downvol[] = { "/bin/sh", "-c", "$HOME/.config/mint-dwm/scripts/volume.sh down", NULL };
-static const char *mutevol[] = { "/bin/sh", "-c", "$HOME/.config/mint-dwm/scripts/volume.sh mute", NULL };
-static const char *sysact[] = { "/bin/sh", "-c", "$HOME/.config/mint-dwm/scripts/sysact.sh", NULL };
+static const char *upvol[]   = { "/bin/sh", "-c", SCRIPTS_DIR "volume.sh up",   NULL };
+static const char *downvol[] = { "/bin/sh", "-c", SCRIPTS_DIR "volume.sh down", NULL };
+static const char *mutevol[] = { "/bin/sh", "-c", SCRIPTS_DIR "volume.sh mute", NULL };
+static const char *sysact[] = { "/bin/sh", "-c", SCRIPTS_DIR "sysact.sh", NULL };
 static const char *clipman[] = { "/bin/sh", "-c", "xfce4-clipman-history", NULL };
 
 
