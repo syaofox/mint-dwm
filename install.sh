@@ -76,17 +76,7 @@ rm -rf "$HOME/.local/share/file-manager/actions"
 ln -s "$REPO_DIR/config/pcmanfm/actions" "$HOME/.local/share/file-manager/actions"
 log_success "文件管理器动作已链接。"
 
-# Fcitx5 Config
-log_info "配置 Fcitx5..."
-mkdir -p "$HOME/.config/fcitx5"
-ln -sf "$REPO_DIR/config/fcitx5/profile" "$HOME/.config/fcitx5/profile"
-ln -sf "$REPO_DIR/config/fcitx5/config" "$HOME/.config/fcitx5/config"
-# 链接 conf 目录（如果存在）
-if [ -d "$REPO_DIR/config/fcitx5/conf" ]; then
-    rm -rf "$HOME/.config/fcitx5/conf"
-    ln -s "$REPO_DIR/config/fcitx5/conf" "$HOME/.config/fcitx5/conf"
-fi
-log_success "Fcitx5 配置已链接。"
+
 
 # 4. 编译组件
 compile_component() {
