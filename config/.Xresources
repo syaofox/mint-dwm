@@ -14,39 +14,23 @@ st.foreground: #c5d9dc
 st.cursorColor: #60DEEC
 
 ! Normal colors
-! 黑色
 st.color0: #0d1416
-! 红色
 st.color1: #ff5555
-! 绿色
 st.color2: #50fa7b
-! 黄色
 st.color3: #f1fa8c
-! 蓝色
 st.color4: #bd93f9
-! 洋红色
 st.color5: #ff79c6
-! 青色
 st.color6: #60DEEC
-! 白色
 st.color7: #bbbbbb
 
 ! Bright colors
-! 亮黑色
 st.color8: #44475a
-! 亮红色
 st.color9: #ff5555
-! 亮绿色
 st.color10: #50fa7b
-! 亮黄色
 st.color11: #f1fa8c
-! 亮蓝色
 st.color12: #bd93f9
-! 亮洋红色
 st.color13: #ff79c6
-! 亮青色
 st.color14: #60DEEC
-! 亮白色
 st.color15: #ffffff
 
 ! Misc
