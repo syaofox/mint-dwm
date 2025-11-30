@@ -25,8 +25,8 @@ static unsigned int tagunderlinepad    = 4; /* 指示器的水平内边距 */
 static char font[256]            = "JetBrainsMono Nerd Font Propo:style=Bold:size=14:pixelsize=14:antialias=true:autohint=true";
 static char dmenufont[256]       = "JetBrainsMono Nerd Font Propo:style=Bold:size=14:pixelsize=14:antialias=true:autohint=true";
 static const char *fonts[]          = { font };
-static const char statusfont[]      = "JetBrainsMono Nerd Font Propo:style=Bold:size=14:pixelsize=14:antialias=true:autohint=true";
-static const char tagsfont[]        = "JetBrainsMono Nerd Font Propo:style=Bold:size=16:pixelsize=16:antialias=true:autohint=true";
+static char statusfont[256]      = "JetBrainsMono Nerd Font Propo:style=Bold:size=14:pixelsize=14:antialias=true:autohint=true";
+static char tagsfont[256]        = "JetBrainsMono Nerd Font Propo:style=Bold:size=16:pixelsize=16:antialias=true:autohint=true";
 
 static char normbgcolor[64]           = "#0d1416";
 static char normbordercolor[64]       = "#1a2529";
@@ -130,6 +130,8 @@ static const char *termcmd[]  = { "/bin/sh", "-c", SCRIPTS_DIR "run-term.sh", NU
 ResourcePref resources[] = {
 		{ "font",               STRING,  &font },
 		{ "dmenufont",          STRING,  &dmenufont },
+		{ "statusfont",         STRING,  &statusfont },
+		{ "tagsfont",           STRING,  &tagsfont },
 		{ "normbgcolor",        STRING,  &normbgcolor },
 		{ "normbordercolor",    STRING,  &normbordercolor },
 		{ "normfgcolor",        STRING,  &normfgcolor },
@@ -153,6 +155,10 @@ ResourcePref resources[] = {
 		{ "barheight",          INTEGER, &barheight },
 		{ "tagunderlineheight", INTEGER, &tagunderlineheight },
 		{ "tagunderlinepad",    INTEGER, &tagunderlinepad },
+		{ "systraypinning",     INTEGER, &systraypinning },
+		{ "systrayonleft",      INTEGER, &systrayonleft },
+		{ "systraypinningfailfirst", INTEGER, &systraypinningfailfirst },
+		{ "focusedontoptiled",  INTEGER, &focusedontoptiled },
 		{ "systrayspacing",     INTEGER, &systrayspacing },
 		{ "systrayiconsize",    INTEGER, &systrayiconsize },
 		{ "showsystray",        INTEGER, &showsystray },

@@ -36,6 +36,8 @@
 ! dwm settings
 dwm.font: JetBrainsMono Nerd Font Propo:style=Bold:size=14:pixelsize=14:antialias=true:autohint=true
 dwm.dmenufont: JetBrainsMono Nerd Font Propo:style=Bold:size=14:pixelsize=14:antialias=true:autohint=true
+dwm.statusfont: JetBrainsMono Nerd Font Propo:style=Bold:size=14:pixelsize=14:antialias=true:autohint=true
+dwm.tagsfont: JetBrainsMono Nerd Font Propo:style=Bold:size=16:pixelsize=16:antialias=true:autohint=true
 dwm.normbgcolor: #0d1416
 dwm.normbordercolor: #1a2529
 dwm.normfgcolor: #2a3539
@@ -59,6 +61,10 @@ dwm.smartgaps: 0
 dwm.barheight: 30
 dwm.tagunderlineheight: 2
 dwm.tagunderlinepad: 4
+dwm.systraypinning: 0
+dwm.systrayonleft: 0
+dwm.systraypinningfailfirst: 1
+dwm.focusedontoptiled: 1
 dwm.systrayspacing: 2
 dwm.systrayiconsize: 16
 dwm.showsystray: 1
