@@ -65,18 +65,18 @@ static const char unknown_str[] = "n/a";
  * wifi_perc           WiFi signal in percent          interface name (wlan0)
  */
 static const struct arg args[] = {
-	/* function format          argument */
+	/* function format          argument            interval  resource */
 	/* Network - 优化：使用原生 C 函数，最高性能 */
-	{ netspeed_combined, "^c#CCCCCC^%s^d^  ", "enp4s0", 2000 },
+	{ netspeed_combined, "%s  ", "enp4s0", 2000, "color_netspeed" },
 	/* CPU & RAM - 优化：使用内置函数，合并显示 */
-	{ cpu_perc,     "^c#89B4FA^CPU %s%%^d^ ", NULL, 2000 },
-	{ ram_used,     "^c#89B4FA^RAM %s^d^  ", NULL, 2000 },
+	{ cpu_perc,     "CPU %s%% ", NULL, 2000, "color_cpu" },
+	{ ram_used,     "RAM %s  ", NULL, 2000, "color_ram" },
 	/* GPU & VRAM - 优化：使用原生 C 函数（NVML），最高性能 */
-	{ gpu_combined, "^c#94E2D5^%s^d^  ", NULL, 3000 },
+	{ gpu_combined, "%s  ", NULL, 3000, "color_gpu" },
 	/* Vol - 显示音量百分比 */
-	{ run_command,  "^c#F9E2AF^VOL %s%%   ^d^", "wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk '{print int($2 * 100)}'", 1500 },
+	{ run_command,  "VOL %s%%   ", "wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk '{print int($2 * 100)}'", 1500, "color_vol" },
 	/* DateTime - 优化：降低更新频率 */
-	{ datetime,     "^c#e979fc^%s^d^", "%m-%d %H:%M ", 5000 },
+	{ datetime,     "%s", "%m-%d %H:%M ", 5000, "color_datetime" },
 	/* caps/num lock - 优化：降低更新频率 */
-	{ keyboard_indicators, "^c#F38BA8^%s^d^  ", "C?N?", 2000 },
+	{ keyboard_indicators, "%s  ", "C?N?", 2000, "color_indicators" },
 };

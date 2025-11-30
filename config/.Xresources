@@ -119,3 +119,12 @@ dwm.showsystray: 1
 dwm.focusedontoptiled: 1
 ! 鼠标悬停聚焦 (1:是, 0:否)
 dwm.focusonhover: 0
+
+! slstatus colors
+slstatus.color_netspeed: #bbbbbb
+slstatus.color_cpu: #bd93f9
+slstatus.color_ram: #bd93f9
+slstatus.color_gpu: #60DEEC
+slstatus.color_vol: #f1fa8c
+slstatus.color_datetime: #ff79c6
+slstatus.color_indicators: #ff5555

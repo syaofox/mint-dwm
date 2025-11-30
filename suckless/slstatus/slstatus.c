@@ -6,6 +6,7 @@
 #include <string.h>
 #include <time.h>
 #include <X11/Xlib.h>
+#include <X11/Xresource.h>
 
 #include "arg.h"
 #include "slstatus.h"
@@ -15,7 +16,8 @@ struct arg {
 	const char *(*func)(const char *);
 	const char *fmt;
 	const char *args;
-	const unsigned int refresh_ms;
+	unsigned int refresh_ms;
+	const char *res_name;
 };
 
 char buf[1024];
@@ -80,6 +82,8 @@ main(int argc, char *argv[])
 	int sflag, ret;
 	char status[MAXLEN];
 	const char *res;
+	char *res_colors[LEN(args)] = {0};
+	XrmDatabase db;
 
 	sflag = 0;
 	ARGBEGIN {
@@ -117,6 +121,25 @@ main(int argc, char *argv[])
 	if (!sflag && !(dpy = XOpenDisplay(NULL)))
 		die("XOpenDisplay: Failed to open display");
 
+	if (dpy) {
+		XrmInitialize();
+		char *res_man = XResourceManagerString(dpy);
+		if (res_man) {
+			db = XrmGetStringDatabase(res_man);
+			for (i = 0; i < LEN(args); i++) {
+				if (args[i].res_name) {
+					char resource[256];
+					char *type;
+					XrmValue value;
+					snprintf(resource, sizeof(resource), "slstatus.%s", args[i].res_name);
+					if (XrmGetResource(db, resource, "Slstatus.Color", &type, &value))
+						res_colors[i] = strdup(value.addr);
+				}
+			}
+			XrmDestroyDatabase(db);
+		}
+	}
+
 	do {
 		if (clock_gettime(CLOCK_MONOTONIC, &start) < 0)
 			die("clock_gettime:");
@@ -132,6 +155,12 @@ main(int argc, char *argv[])
 				                     sizeof(states[i].text),
 				                     args[i].fmt, res)) < 0)
 					break;
+
+				if (res_colors[i]) {
+					char colored[MAXLEN];
+					if (esnprintf(colored, sizeof(colored), "^c%s^%s^d^", res_colors[i], states[i].text) > 0)
+						strncpy(states[i].text, colored, sizeof(states[i].text));
+				}
 
 				states[i].initialized = 1;
 				states[i].next_update = start;
