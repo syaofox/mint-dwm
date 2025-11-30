@@ -41,14 +41,14 @@ sudo apt install build-essential python3-dev libx11-dev libxinerama-dev libxft-d
 
 为了获得完整的体验，需要安装以下软件：
 
-*   **基础工具**: `dunst` (通知), `feh` (壁纸), `pasystray` (PulseAudio 托盘), `picom` (可选，合成器), `wireplumber` (提供 wpctl 音量控制), `xfce4-clipman` (剪贴板), `xdotool` (模拟按键) 
+*   **基础工具**: `dunst` (通知), `feh` (壁纸), `pasystray` (PulseAudio 托盘), `picom` (可选，合成器), `wireplumber` (提供 wpctl 音量控制), `xfce4-clipman` (剪贴板), `xdotool` (模拟按键) `rofi` (应用启动器)
 *   **XFCE 组件**: `xfce4-appfinder` (应用启动器), `thunar` (文件管理器)
 *   **其他**: `maim` (截图), `xclip` (剪贴板管理), `libpolkit-gnome-1-0` (Polkit 代理), `gnome-keyring` (密码管理), `trash-cli` (垃圾桶) `imagemagick` (图片处理)
 *   **浏览器**: `brave-browser` (配置中默认使用，可修改)
 *   **搜索工具**: `fsearch` (配置中默认使用 Flatpak 版本)
 
 ```bash
-sudo apt install dunst feh pasystray picom wireplumber xfce4-clipman xdotool maim xclip 
+sudo apt install dunst feh pasystray picom wireplumber xfce4-clipman xdotool maim xclip rofi
 ```
 
 ### 字体

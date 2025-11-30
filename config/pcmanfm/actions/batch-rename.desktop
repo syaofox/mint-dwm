@@ -8,7 +8,7 @@ Profiles=profile-zero;
 
 [X-Action-Profile profile-zero]
 MimeTypes=all/all;all/allfiles;inode/directory;
-Exec=thunar -B %F
+Exec=bulky %F
 Name=Default profile
 SelectionCount=>0
 
