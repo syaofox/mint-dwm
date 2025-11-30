@@ -7,5 +7,5 @@ Profiles=profile-zero;
 
 [X-Action-Profile profile-zero]
 MimeTypes=inode/directory;
-Exec=sh -c 'cd "$1" && /usr/bin/x-terminal-emulator' -- %f
+Exec=sh -c 'cd "$1" && /home/syaofox/.config/mint-dwm/scripts/run-term.sh' -- %f
 Name=Default profile
