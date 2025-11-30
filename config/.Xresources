@@ -33,3 +33,21 @@
 ! st.alpha: 0.8
 ! st.borderpx: 2
 
+! dwm settings
+dwm.font: JetBrainsMono Nerd Font Propo:style=Bold:size=14:pixelsize=14:antialias=true:autohint=true
+dwm.dmenufont: JetBrainsMono Nerd Font Propo:style=Bold:size=14:pixelsize=14:antialias=true:autohint=true
+dwm.normbgcolor: #0d1416
+dwm.normbordercolor: #1a2529
+dwm.normfgcolor: #2a3539
+dwm.selfgcolor: #c5d9dc
+dwm.selbordercolor: #60DEEC
+dwm.selbgcolor: #0d1416
+dwm.accentcolor: #60DEEC
+dwm.underlinecolor: #ad8ee6
+dwm.borderpx: 2
+dwm.snap: 32
+dwm.showbar: 1
+dwm.topbar: 1
+dwm.nmaster: 1
+dwm.resizehints: 0
+dwm.mfact: 0.55

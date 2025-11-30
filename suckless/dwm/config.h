@@ -2,8 +2,8 @@
 #include <X11/XF86keysym.h>
 
 /* appearance */
-static const unsigned int borderpx  = 2;        /* 窗口边框像素 */
-static const unsigned int snap      = 32;       /* 吸附像素 */
+static unsigned int borderpx  = 2;        /* 窗口边框像素 */
+static unsigned int snap      = 32;       /* 吸附像素 */
 static const unsigned int systraypinning = 0;   /* 0: 系统托盘跟随选中的显示器, >0: 将系统托盘固定到显示器 X */
 static const unsigned int systrayonleft = 0;    /* 0: 系统托盘在右侧, >0: 系统托盘在状态文本左侧 */
 static const unsigned int systrayspacing = 2;   /* 系统托盘间距 */
@@ -15,31 +15,35 @@ static const unsigned int gappiv    = 4;       /* 窗口之间的垂直内边距
 static const unsigned int gappoh    = 4;       /* 窗口与屏幕边缘之间的水平外边距 */
 static const unsigned int gappov    = 4;       /* 窗口与屏幕边缘之间的垂直外边距 */
 static       int smartgaps          = 0;        /* 1 表示只有一个窗口时不显示外边距 */
-static const int showbar            = 1;        /* 0 表示不显示状态栏 */
-static const int topbar             = 1;        /* 0 表示状态栏在底部 */
+static int showbar            = 1;        /* 0 表示不显示状态栏 */
+static int topbar             = 1;        /* 0 表示状态栏在底部 */
 static const int focusedontoptiled  = 1;        /* 1 means focused tile client is shown on top of floating windows */
 static const int focusonhover       = 0;        /* 1: 鼠标悬停切换焦点, 0: 不自动切换 */
 static const int barheight          = 30;        /* 0 表示自动高度 */
 static const unsigned int tagunderlineheight = 2; /* 选中标签下指示器的高度 */
 static const unsigned int tagunderlinepad    = 4; /* 指示器的水平内边距 */
-static const char *fonts[]          = { "JetBrainsMono Nerd Font Propo:style=Bold:size=14:pixelsize=14:antialias=true:autohint=true" };
-static const char dmenufont[]       = "JetBrainsMono Nerd Font Propo:style=Bold:size=14:pixelsize=14:antialias=true:autohint=true";
+static char font[]            = "JetBrainsMono Nerd Font Propo:style=Bold:size=14:pixelsize=14:antialias=true:autohint=true";
+static char dmenufont[]       = "JetBrainsMono Nerd Font Propo:style=Bold:size=14:pixelsize=14:antialias=true:autohint=true";
+static const char *fonts[]          = { font };
 static const char statusfont[]      = "JetBrainsMono Nerd Font Propo:style=Bold:size=14:pixelsize=14:antialias=true:autohint=true";
 static const char tagsfont[]        = "JetBrainsMono Nerd Font Propo:style=Bold:size=16:pixelsize=16:antialias=true:autohint=true";
-static const char col_gray1[]       = "#0d1416"; // Theme background
-static const char col_gray2[]       = "#1a2529"; // Theme border (inactive)
-static const char col_gray3[]       = "#2a3539"; // Theme foreground (inactive)
-static const char col_gray4[]       = "#c5d9dc"; // Theme foreground (active)
-static const char col_cyan[]        = "#60DEEC"; // Theme accent (active)
-static const char col_tagline[]     = "#ad8ee6"; // Theme tag underline
 
-static const char *colors[][3]      = {
+static char normbgcolor[]           = "#0d1416";
+static char normbordercolor[]       = "#1a2529";
+static char normfgcolor[]           = "#2a3539";
+static char selfgcolor[]            = "#c5d9dc";
+static char selbordercolor[]        = "#60DEEC";
+static char selbgcolor[]            = "#0d1416";
+static char accentcolor[]           = "#60DEEC";
+static char underlinecolor[]        = "#ad8ee6";
+
+static char *colors[][3]      = {
 	/* fg         bg         border   */
-	[SchemeNorm] = { col_gray3, col_gray1, col_gray2 }, // 非活动: 前景(a9b1d6), 背景(1a1b26), 边框(32344a)
-	[SchemeSel]  = { col_gray4, col_gray1, col_cyan  }, // 选中: 仅字体更亮, 底色保持, 边框使用强调色
-	[SchemeOcc]  = { col_cyan,  col_gray1, col_gray2 }, // 有窗口: 前景突出色, 背景保持
-	[SchemeSelOcc] = { col_cyan, col_gray1, col_cyan }, // 当前焦点且有窗口: 使用强调色字体
-	[SchemeUnderline] = { col_tagline, col_gray1, col_gray1 }, // 标签色条
+	[SchemeNorm] = { normfgcolor, normbgcolor, normbordercolor }, // 非活动
+	[SchemeSel]  = { selfgcolor,  selbgcolor,  selbordercolor  }, // 选中
+	[SchemeOcc]  = { accentcolor, normbgcolor, normbordercolor }, // 有窗口: 前景突出色, 背景保持
+	[SchemeSelOcc] = { accentcolor, normbgcolor, accentcolor }, // 当前焦点且有窗口: 使用强调色字体
+	[SchemeUnderline] = { underlinecolor, normbgcolor, normbgcolor }, // 标签色条
 };
 
 
@@ -83,9 +87,9 @@ static const Rule rules[] = {
 };
 
 /* layout(s) */
-static const float mfact     = 0.55; /* 主区域大小因子 [0.05..0.95] */
-static const int nmaster     = 1;    /* 主区域中的客户端数量 */
-static const int resizehints = 0;    /* 1 表示在平铺调整大小时尊重尺寸提示 */
+static float mfact     = 0.55; /* 主区域大小因子 [0.05..0.95] */
+static int nmaster     = 1;    /* 主区域中的客户端数量 */
+static int resizehints = 0;    /* 1 表示在平铺调整大小时尊重尺寸提示 */
 static const int lockfullscreen = 1; /* 1 将强制聚焦全屏窗口 */
 static const int refreshrate = 120;  /* 客户端移动/调整大小时的刷新率（每秒） */
 
@@ -119,8 +123,29 @@ static const Layout layouts[] = {
 
 static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() */
 static const char *launchercmd[] = { "/bin/sh", "-c", SCRIPTS_DIR "run-launcher.sh", NULL };
-static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", col_gray1, "-nf", col_gray3, "-sb", col_cyan, "-sf", col_gray3, NULL };
+static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", normbgcolor, "-nf", normfgcolor, "-sb", accentcolor, "-sf", normbgcolor, NULL };
 static const char *termcmd[]  = { "/bin/sh", "-c", SCRIPTS_DIR "run-term.sh", NULL };
+
+/* Xresources preferences to load at startup */
+ResourcePref resources[] = {
+		{ "font",               STRING,  &font },
+		{ "dmenufont",          STRING,  &dmenufont },
+		{ "normbgcolor",        STRING,  &normbgcolor },
+		{ "normbordercolor",    STRING,  &normbordercolor },
+		{ "normfgcolor",        STRING,  &normfgcolor },
+		{ "selbgcolor",         STRING,  &selbgcolor },
+		{ "selbordercolor",     STRING,  &selbordercolor },
+		{ "selfgcolor",         STRING,  &selfgcolor },
+		{ "accentcolor",        STRING,  &accentcolor },
+		{ "underlinecolor",     STRING,  &underlinecolor },
+		{ "borderpx",          	INTEGER, &borderpx },
+		{ "snap",          		INTEGER, &snap },
+		{ "showbar",          	INTEGER, &showbar },
+		{ "topbar",          	INTEGER, &topbar },
+		{ "nmaster",          	INTEGER, &nmaster },
+		{ "resizehints",       	INTEGER, &resizehints },
+		{ "mfact",      	 	FLOAT,   &mfact },
+};
 static const char *filecmd[]  = { "/usr/bin/pcmanfm",  NULL };
 static const char *screenshotcmd[]  = { "/bin/sh", "-c", SCRIPTS_DIR "screenshot.sh copy", NULL };
 static const char *screenshotsavedcmd[] = { "/bin/sh", "-c", SCRIPTS_DIR "screenshot.sh save", NULL };
