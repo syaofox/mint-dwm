@@ -22,20 +22,20 @@ static int focusonhover       = 0;        /* 1: 鼠标悬停切换焦点, 0: 不
 static int barheight          = 30;        /* 0 表示自动高度 */
 static unsigned int tagunderlineheight = 2; /* 选中标签下指示器的高度 */
 static unsigned int tagunderlinepad    = 4; /* 指示器的水平内边距 */
-static char font[]            = "JetBrainsMono Nerd Font Propo:style=Bold:size=14:pixelsize=14:antialias=true:autohint=true";
-static char dmenufont[]       = "JetBrainsMono Nerd Font Propo:style=Bold:size=14:pixelsize=14:antialias=true:autohint=true";
+static char font[256]            = "JetBrainsMono Nerd Font Propo:style=Bold:size=14:pixelsize=14:antialias=true:autohint=true";
+static char dmenufont[256]       = "JetBrainsMono Nerd Font Propo:style=Bold:size=14:pixelsize=14:antialias=true:autohint=true";
 static const char *fonts[]          = { font };
 static const char statusfont[]      = "JetBrainsMono Nerd Font Propo:style=Bold:size=14:pixelsize=14:antialias=true:autohint=true";
 static const char tagsfont[]        = "JetBrainsMono Nerd Font Propo:style=Bold:size=16:pixelsize=16:antialias=true:autohint=true";
 
-static char normbgcolor[]           = "#0d1416";
-static char normbordercolor[]       = "#1a2529";
-static char normfgcolor[]           = "#2a3539";
-static char selfgcolor[]            = "#c5d9dc";
-static char selbordercolor[]        = "#60DEEC";
-static char selbgcolor[]            = "#0d1416";
-static char accentcolor[]           = "#60DEEC";
-static char underlinecolor[]        = "#ad8ee6";
+static char normbgcolor[64]           = "#0d1416";
+static char normbordercolor[64]       = "#1a2529";
+static char normfgcolor[64]           = "#2a3539";
+static char selfgcolor[64]            = "#c5d9dc";
+static char selbordercolor[64]        = "#60DEEC";
+static char selbgcolor[64]            = "#0d1416";
+static char accentcolor[64]           = "#60DEEC";
+static char underlinecolor[64]        = "#ad8ee6";
 
 static char *colors[][3]      = {
 	/* fg         bg         border   */
