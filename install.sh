@@ -120,5 +120,11 @@ chmod +x "$REPO_DIR/scripts/"*.sh
 chmod +x "$REPO_DIR/scripts/"*.py
 chmod +x "$REPO_DIR/scripts/dwm-start" # Ensure this one specifically if it lacks extension
 
+# 7. 创建必要的用户目录
+log_info "创建必要的用户目录..."
+mkdir -p "$HOME/Pictures/Screenshots"
+mkdir -p "$HOME/.cache"
+log_success "用户目录已创建 (Pictures/Screenshots, .cache)。"
+
 log_success "Mint DWM 安装完成！请注销并选择 Dwm 会话登录。"
 
