@@ -9,7 +9,7 @@ lock="  Lock"
 
 # 根据安装情况选择菜单工具 (优先 rofi，其次 dmenu)
 if command -v rofi &> /dev/null; then
-    menu_cmd="rofi -dmenu -i -p System"
+    menu_cmd="rofi -dmenu -i -p System -theme $HOME/.config/mint-dwm/config/rofi-theme.rasi"
 else
     menu_cmd="dmenu -i -p System:"
 fi
