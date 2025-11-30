@@ -117,8 +117,7 @@ static const Layout layouts[] = {
 #define CONFIG_DIR  "$HOME/.config/mint-dwm/config/"
 
 static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() */
-static const char *appfindercmd[] = { "/usr/bin/xfce4-appfinder", NULL };
-static const char *roficmd[] = { "/bin/sh", "-c", "rofi -show drun -theme " CONFIG_DIR "rofi-theme.rasi", NULL };
+static const char *launchercmd[] = { "/bin/sh", "-c", SCRIPTS_DIR "run-launcher.sh", NULL };
 static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", col_gray1, "-nf", col_gray3, "-sb", col_cyan, "-sf", col_gray3, NULL };
 static const char *termcmd[]  = { "/bin/sh", "-c", SCRIPTS_DIR "run-term.sh", NULL };
 static const char *filecmd[]  = { "/usr/bin/pcmanfm",  NULL };
@@ -148,7 +147,7 @@ static const AppKey appkeys[] = {
 
 static const Key keys[] = {
 	/* modifier                     key        function        argument */
-	{ MODKEY,                       XK_space,  spawn,          {.v = roficmd } }, /* 启动菜单 */
+	{ MODKEY,                       XK_space,  spawn,          {.v = launchercmd } }, /* 启动菜单 */
 	{ MODKEY,                       XK_Return, spawn,          {.v = termcmd } }, /* 启动终端 */
     { MODKEY,                       XK_e,      spawn,          {.v = filecmd } }, /* 启动thunar */
     { MODKEY,                       XK_a,      spawn,          {.v = screenshotcmd } }, /* 截图 */
