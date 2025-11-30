@@ -51,3 +51,15 @@ dwm.topbar: 1
 dwm.nmaster: 1
 dwm.resizehints: 0
 dwm.mfact: 0.55
+dwm.gappih: 6
+dwm.gappiv: 4
+dwm.gappoh: 4
+dwm.gappov: 4
+dwm.smartgaps: 0
+dwm.barheight: 30
+dwm.tagunderlineheight: 2
+dwm.tagunderlinepad: 4
+dwm.systrayspacing: 2
+dwm.systrayiconsize: 16
+dwm.showsystray: 1
+dwm.focusonhover: 0

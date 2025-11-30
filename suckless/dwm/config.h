@@ -4,24 +4,24 @@
 /* appearance */
 static unsigned int borderpx  = 2;        /* 窗口边框像素 */
 static unsigned int snap      = 32;       /* 吸附像素 */
-static const unsigned int systraypinning = 0;   /* 0: 系统托盘跟随选中的显示器, >0: 将系统托盘固定到显示器 X */
-static const unsigned int systrayonleft = 0;    /* 0: 系统托盘在右侧, >0: 系统托盘在状态文本左侧 */
-static const unsigned int systrayspacing = 2;   /* 系统托盘间距 */
-static const unsigned int systrayiconsize = 16; /* 系统托盘图标高度（像素） */
-static const int systraypinningfailfirst = 1;   /* 1: 如果固定失败，在第一个显示器显示系统托盘，0: 在最后一个显示器显示系统托盘 */
-static const int showsystray        = 1;        /* 0 表示不显示系统托盘 */
-static const unsigned int gappih    = 6;       /* 窗口之间的水平内边距 */
-static const unsigned int gappiv    = 4;       /* 窗口之间的垂直内边距 */
-static const unsigned int gappoh    = 4;       /* 窗口与屏幕边缘之间的水平外边距 */
-static const unsigned int gappov    = 4;       /* 窗口与屏幕边缘之间的垂直外边距 */
-static       int smartgaps          = 0;        /* 1 表示只有一个窗口时不显示外边距 */
+static unsigned int systraypinning = 0;   /* 0: 系统托盘跟随选中的显示器, >0: 将系统托盘固定到显示器 X */
+static unsigned int systrayonleft = 0;    /* 0: 系统托盘在右侧, >0: 系统托盘在状态文本左侧 */
+static unsigned int systrayspacing = 2;   /* 系统托盘间距 */
+static unsigned int systrayiconsize = 16; /* 系统托盘图标高度（像素） */
+static int systraypinningfailfirst = 1;   /* 1: 如果固定失败，在第一个显示器显示系统托盘，0: 在最后一个显示器显示系统托盘 */
+static int showsystray        = 1;        /* 0 表示不显示系统托盘 */
+static unsigned int gappih    = 6;       /* 窗口之间的水平内边距 */
+static unsigned int gappiv    = 4;       /* 窗口之间的垂直内边距 */
+static unsigned int gappoh    = 4;       /* 窗口与屏幕边缘之间的水平外边距 */
+static unsigned int gappov    = 4;       /* 窗口与屏幕边缘之间的垂直外边距 */
+static int smartgaps          = 0;        /* 1 表示只有一个窗口时不显示外边距 */
 static int showbar            = 1;        /* 0 表示不显示状态栏 */
 static int topbar             = 1;        /* 0 表示状态栏在底部 */
-static const int focusedontoptiled  = 1;        /* 1 means focused tile client is shown on top of floating windows */
-static const int focusonhover       = 0;        /* 1: 鼠标悬停切换焦点, 0: 不自动切换 */
-static const int barheight          = 30;        /* 0 表示自动高度 */
-static const unsigned int tagunderlineheight = 2; /* 选中标签下指示器的高度 */
-static const unsigned int tagunderlinepad    = 4; /* 指示器的水平内边距 */
+static int focusedontoptiled  = 1;        /* 1 means focused tile client is shown on top of floating windows */
+static int focusonhover       = 0;        /* 1: 鼠标悬停切换焦点, 0: 不自动切换 */
+static int barheight          = 30;        /* 0 表示自动高度 */
+static unsigned int tagunderlineheight = 2; /* 选中标签下指示器的高度 */
+static unsigned int tagunderlinepad    = 4; /* 指示器的水平内边距 */
 static char font[]            = "JetBrainsMono Nerd Font Propo:style=Bold:size=14:pixelsize=14:antialias=true:autohint=true";
 static char dmenufont[]       = "JetBrainsMono Nerd Font Propo:style=Bold:size=14:pixelsize=14:antialias=true:autohint=true";
 static const char *fonts[]          = { font };
@@ -145,6 +145,18 @@ ResourcePref resources[] = {
 		{ "nmaster",          	INTEGER, &nmaster },
 		{ "resizehints",       	INTEGER, &resizehints },
 		{ "mfact",      	 	FLOAT,   &mfact },
+		{ "gappih",             INTEGER, &gappih },
+		{ "gappiv",             INTEGER, &gappiv },
+		{ "gappoh",             INTEGER, &gappoh },
+		{ "gappov",             INTEGER, &gappov },
+		{ "smartgaps",          INTEGER, &smartgaps },
+		{ "barheight",          INTEGER, &barheight },
+		{ "tagunderlineheight", INTEGER, &tagunderlineheight },
+		{ "tagunderlinepad",    INTEGER, &tagunderlinepad },
+		{ "systrayspacing",     INTEGER, &systrayspacing },
+		{ "systrayiconsize",    INTEGER, &systrayiconsize },
+		{ "showsystray",        INTEGER, &showsystray },
+		{ "focusonhover",       INTEGER, &focusonhover },
 };
 static const char *filecmd[]  = { "/usr/bin/pcmanfm",  NULL };
 static const char *screenshotcmd[]  = { "/bin/sh", "-c", SCRIPTS_DIR "screenshot.sh copy", NULL };
