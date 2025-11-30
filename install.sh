@@ -51,10 +51,10 @@ FONT_DIR="/usr/share/fonts/JetBrainsMono"
 if [ ! -d "$FONT_DIR" ]; then
     mkdir -p /tmp/nerdfonts
     cd /tmp/nerdfonts
-    curl -L -o JetBrainsMono.zip https://github.com/ryanoasis/nerd-fonts/releases/download/v3.1.1/JetBrainsMono.zip
-    unzip JetBrainsMono.zip
+    curl -L -o JetBrainsMono.tar.xz https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/JetBrainsMono.tar.xz
+    tar -xf JetBrainsMono.tar.xz
     sudo mkdir -p "$FONT_DIR"
-    sudo cp JetBrainsMono/* "$FONT_DIR/"
+    sudo cp *.ttf "$FONT_DIR/"
     sudo fc-cache -f -v
     rm -rf /tmp/nerdfonts
     log_success "字体安装完成。"

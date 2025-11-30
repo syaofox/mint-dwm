@@ -57,15 +57,16 @@ sudo apt install dunst feh pasystray picom wireplumber xfce4-clipman xdotool mai
 
 配置使用了 **JetBrainsMono Nerd Font**。请确保已安装该字体，否则状态栏图标将无法显示。
 
-https://github.com/ryanoasis/nerd-fonts/releases/download/v3.1.1/JetBrainsMono.zip
+https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/JetBrainsMono.tar.xz
+
 
 ```bash
-curl -L -o JetBrainsMono.zip https://github.com/ryanoasis/nerd-fonts/releases/download/v3.1.1/JetBrainsMono.zip
-unzip JetBrainsMono.zip
-mkdir -p /usr/share/fonts
-cp JetBrainsMono/*  /usr/share/fonts/JetBrainsMono/
+curl -L -o JetBrainsMono.tar.xz https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/JetBrainsMono.tar.xz
+tar -xf JetBrainsMono.tar.xz
+mkdir -p /usr/share/fonts/JetBrainsMono
+cp *.ttf /usr/share/fonts/JetBrainsMono/
 fc-cache -f -v
-rm -rf JetBrainsMono.zip JetBrainsMono
+rm -rf JetBrainsMono.tar.xz *.ttf
 ```
 
 ## 安装步骤
