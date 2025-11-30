@@ -41,21 +41,32 @@ sudo apt install build-essential python3-dev libx11-dev libxinerama-dev libxft-d
 
 为了获得完整的体验，需要安装以下软件：
 
-*   **基础工具**: `dunst` (通知), `feh` (壁纸), `pasystray` (PulseAudio 托盘), `picom` (可选，合成器), `wireplumber` (提供 wpctl 音量控制), `xfce4-clipman` (剪贴板), `xdotool` (模拟按键) `rofi` (应用启动器)
-*   **增强工具**: `ffmpeg` (视频缩略图/信息), `zenity` (脚本弹窗), `x11-xserver-utils` (xrdb, 必须安装), `bulky` (批量重命名), `catfish` (文件搜索, Thunar 动作需要)
+*   **基础工具**: `dunst` (通知), `feh` (壁纸), `pasystray` (PulseAudio 托盘), `picom` (可选，合成器), `wireplumber` (提供 wpctl 音量控制), `xfce4-clipman` (剪贴板), `xdotool` (模拟按键) `rofi` (应用启动器) `vim` (文本编辑器)
+*   **增强工具**: `ffmpeg` (视频缩略图/信息), `zenity` (脚本弹窗), `x11-xserver-utils` (xrdb, 必须安装), `bulky` (批量重命名), `catfish` (文件搜索, Thunar 动作需要), `pcmanfm` (文件管理器)
 *   **XFCE 组件**: `xfce4-appfinder` (应用启动器), `thunar` (文件管理器)
-*   **其他**: `maim` (截图), `xclip` (剪贴板管理), `libpolkit-gnome-1-0` (Polkit 代理), `gnome-keyring` (密码管理), `trash-cli` (垃圾桶) `imagemagick` (图片处理)
+*   **其他**: `maim` (截图), `xclip` (剪贴板管理), `libpolkit-gnome-1-0` (Polkit 代理), `gnome-keyring` (密码管理), `trash-cli` (垃圾桶) `imagemagick` (图片处理) `lxappearance` (主题管理)
 *   **浏览器**: `brave-browser` (配置中默认使用，可修改)
 *   **终端**: `st` (自带), `alacritty` (备选, 需另行安装)
 *   **搜索工具**: `fsearch` (配置中默认使用 Flatpak 版本)
 
 ```bash
-sudo apt install dunst feh pasystray picom wireplumber xfce4-clipman xdotool maim xclip rofi ffmpeg zenity x11-xserver-utils bulky catfish
+sudo apt install dunst feh pasystray picom wireplumber xfce4-clipman xdotool maim xclip rofi ffmpeg zenity x11-xserver-utils bulky catfish vim pcmanfm lxappearance
 ```
 
 ### 字体
 
 配置使用了 **JetBrainsMono Nerd Font**。请确保已安装该字体，否则状态栏图标将无法显示。
+
+https://github.com/ryanoasis/nerd-fonts/releases/download/v3.1.1/JetBrainsMono.zip
+
+```bash
+curl -L -o JetBrainsMono.zip https://github.com/ryanoasis/nerd-fonts/releases/download/v3.1.1/JetBrainsMono.zip
+unzip JetBrainsMono.zip
+mkdir -p /usr/share/fonts
+cp JetBrainsMono/*  /usr/share/fonts/JetBrainsMono/
+fc-cache -f -v
+rm -rf JetBrainsMono.zip JetBrainsMono
+```
 
 ## 安装步骤
 
@@ -107,6 +118,11 @@ sudo make clean install
 # 编译安装 slock
 cd ~/.config/mint-dwm/suckless/slock
 sudo make clean install
+
+# 编译安装 st
+cd ~/.config/mint-dwm/suckless/st
+sudo make clean install
+
 ```
 
 ### 3. 添加会话入口
