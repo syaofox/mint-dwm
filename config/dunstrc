@@ -87,9 +87,9 @@
 [urgency_normal]
     background = "#1a2529"
     foreground = "#c5d9dc"
-    frame_color = "#5fc9d3"
+    frame_color = "#60DEEC"
     timeout = 10
-    highlight = "#5fc9d3"
+    highlight = "#60DEEC"
 
 [urgency_critical]
     background = "#2a1515"
