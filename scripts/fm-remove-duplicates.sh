@@ -5,6 +5,45 @@ if [ $# -eq 0 ]; then
     exit 0
 fi
 
+# 选择条件：
+# - 至少选中一个文件夹，或者
+# - 选中多个（>=2）文件或文件夹
+items=("$@")
+count=${#items[@]}
+
+has_dir=0
+for p in "${items[@]}"; do
+    if [ -d "$p" ]; then
+        has_dir=1
+        break
+    fi
+done
+
+if [ "$has_dir" -eq 0 ] && [ "$count" -lt 2 ]; then
+    zenity --error --title="重复文件清理" --text="请至少选中一个文件夹，或者选中多个文件/文件夹后再运行“删除重复项”。" --width=360
+    exit 0
+fi
+
+# 将选中的路径展开成“要检查的文件列表”：
+# - 普通文件：直接加入
+# - 目录：递归 find 目录下的所有普通文件
+files_to_check=()
+for p in "${items[@]}"; do
+    if [ -f "$p" ]; then
+        files_to_check+=("$p")
+    elif [ -d "$p" ]; then
+        while IFS= read -r -d '' f; do
+            files_to_check+=("$f")
+        done < <(find "$p" -type f -print0)
+    fi
+done
+
+# 如果最终没有可检查的文件，给出提示后退出
+if [ ${#files_to_check[@]} -eq 0 ]; then
+    zenity --info --title="重复文件清理" --text="选中的项目中没有可用的普通文件可供检查。" --width=360
+    exit 0
+fi
+
 # 临时文件
 HASH_FILE=$(mktemp)
 DUPLICATES_FILE=$(mktemp)
@@ -15,10 +54,10 @@ TITLE="重复文件清理"
 # 进度条处理
 (
     count=0
-    total=$#
+    total=${#files_to_check[@]}
     current_progress=0
 
-    for file in "$@"; do
+    for file in "${files_to_check[@]}"; do
         if [ -f "$file" ]; then
             # 计算MD5，只取哈希值
             sum=$(md5sum "$file" | cut -d ' ' -f 1)

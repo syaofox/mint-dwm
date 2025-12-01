@@ -5,5 +5,5 @@ Comment=Check selected files and remove duplicates
 Comment[zh_CN]=校验并删除重复项
 Icon-Name=edit-clear
 Exec=/home/syaofox/.config/mint-dwm/scripts/fm-remove-duplicates.sh %F
-Selection=Any
-Mimetypes=all/allfiles;
+Selection=notnone
+Extensions=any;
