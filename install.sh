@@ -62,28 +62,38 @@ else
     log_info "字体目录已存在，跳过安装。"
 fi
 
-# 3. 安装 GTK 主题（Nordic）
-THEME_ARCHIVE="$REPO_DIR/gtk-themes/Nordic.tar.xz"
+# 3. 安装 GTK 主题（自动识别 gtk-themes 下所有压缩包）
+THEME_DIR_SRC="$REPO_DIR/gtk-themes"
 THEME_TARGET_DIR="$HOME/.themes"
-if [ -f "$THEME_ARCHIVE" ]; then
-    log_info "安装 Nordic GTK 主题到用户主题目录 ($THEME_TARGET_DIR)..."
+if [ -d "$THEME_DIR_SRC" ]; then
     mkdir -p "$THEME_TARGET_DIR"
-    TMP_THEME_DIR="$(mktemp -d)"
-    if tar -xf "$THEME_ARCHIVE" -C "$TMP_THEME_DIR"; then
-        # 解压后可能包含一个或多个目录，这里全部移动到 ~/.themes
-        find "$TMP_THEME_DIR" -mindepth 1 -maxdepth 1 -type d -print0 | while IFS= read -r -d '' dir; do
-            THEME_NAME="$(basename "$dir")"
-            # 覆盖已有同名目录
-            rm -rf "$THEME_TARGET_DIR/$THEME_NAME"
-            mv "$dir" "$THEME_TARGET_DIR/"
-            log_success "GTK 主题已安装: $THEME_TARGET_DIR/$THEME_NAME"
-        done
+    shopt -s nullglob
+    THEME_ARCHIVES=("$THEME_DIR_SRC"/*.tar "$THEME_DIR_SRC"/*.tar.gz "$THEME_DIR_SRC"/*.tar.xz "$THEME_DIR_SRC"/*.tgz)
+    if [ ${#THEME_ARCHIVES[@]} -eq 0 ]; then
+        log_info "gtk-themes 目录中没有找到任何主题压缩包，跳过 GTK 主题安装。"
     else
-        log_error "解压 Nordic GTK 主题失败。"
+        for THEME_ARCHIVE in "${THEME_ARCHIVES[@]}"; do
+            BASENAME="$(basename "$THEME_ARCHIVE")"
+            log_info "安装 GTK 主题包: $BASENAME 到用户主题目录 ($THEME_TARGET_DIR)..."
+            TMP_THEME_DIR="$(mktemp -d)"
+            if tar -xf "$THEME_ARCHIVE" -C "$TMP_THEME_DIR"; then
+                # 解压后可能包含一个或多个目录，这里全部移动到 ~/.themes
+                find "$TMP_THEME_DIR" -mindepth 1 -maxdepth 1 -type d -print0 | while IFS= read -r -d '' dir; do
+                    THEME_NAME="$(basename "$dir")"
+                    # 覆盖已有同名目录
+                    rm -rf "$THEME_TARGET_DIR/$THEME_NAME"
+                    mv "$dir" "$THEME_TARGET_DIR/"
+                    log_success "GTK 主题已安装: $THEME_TARGET_DIR/$THEME_NAME"
+                done
+            else
+                log_error "解压 GTK 主题包失败: $BASENAME"
+            fi
+            rm -rf "$TMP_THEME_DIR"
+        done
     fi
-    rm -rf "$TMP_THEME_DIR"
+    shopt -u nullglob
 else
-    log_info "未找到 Nordic GTK 主题压缩包 ($THEME_ARCHIVE)，跳过 GTK 主题安装。"
+    log_info "未找到 GTK 主题目录 ($THEME_DIR_SRC)，跳过 GTK 主题安装。"
 fi
 
 # 3. 配置软链接
