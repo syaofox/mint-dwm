@@ -1,7 +1,0 @@
-[Nemo Action]
-Name=Open Terminal Here
-Comment=Open Terminal Here
-Icon-Name=utilities-terminal
-Exec=sh -c 'cd "%d" && /home/syaofox/.config/mint-dwm/scripts/run-term.sh'
-Selection=Any
-Mimetypes=inode/directory;

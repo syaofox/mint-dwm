@@ -1,7 +1,8 @@
 [Nemo Action]
 Name=Remove Duplicates
-Name[zh_CN]=校验并删除重复项
+Name[zh_CN]=删除重复项
 Comment=Check selected files and remove duplicates
+Comment[zh_CN]=校验并删除重复项
 Icon-Name=edit-clear
 Exec=/home/syaofox/.config/mint-dwm/scripts/pcmanfm-remove-duplicates.sh %F
 Selection=Any
