@@ -1,0 +1,8 @@
+[Nemo Action]
+Name=Generate Thumbnails
+Name[zh_CN]=生成预览图
+Comment=Generate thumbnails for selected videos and images
+Icon-Name=image-x-generic
+Exec=/home/syaofox/.config/mint-dwm/scripts/pcmanfm-generate-thumbnails.sh %F
+Selection=Any
+Mimetypes=all/allfiles;

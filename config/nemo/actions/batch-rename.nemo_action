@@ -1,0 +1,8 @@
+[Nemo Action]
+Name=Batch Rename
+Name[zh_CN]=批量重命名
+Comment=Batch rename selected files
+Icon-Name=document-edit
+Exec=bulky %F
+Selection=Any
+Mimetypes=all/allfiles;

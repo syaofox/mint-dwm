@@ -43,7 +43,7 @@ log_info "安装编译依赖..."
 sudo apt install -y build-essential python3-dev libx11-dev libxinerama-dev libxft-dev libxrandr-dev
 
 log_info "安装运行依赖..."
-sudo apt install -y dunst feh pasystray picom wireplumber xfce4-clipman xdotool maim xclip rofi ffmpeg zenity x11-xserver-utils bulky catfish vim pcmanfm lxappearance fcitx5 fcitx5-chinese-addons fcitx5-frontend-gtk3 fcitx5-frontend-gtk4 fcitx5-frontend-qt5 fcitx5-material-color
+sudo apt install -y dunst feh pasystray picom wireplumber xfce4-clipman xdotool maim xclip rofi ffmpeg zenity x11-xserver-utils bulky catfish vim nemo lxappearance fcitx5 fcitx5-chinese-addons fcitx5-frontend-gtk3 fcitx5-frontend-gtk4 fcitx5-frontend-qt5 fcitx5-material-color
 
 # 2. 安装字体
 log_info "安装 JetBrainsMono Nerd Font..."
@@ -70,11 +70,11 @@ ln -sf "$REPO_DIR/config/.Xresources" "$HOME/.Xresources"
 xrdb -merge "$HOME/.Xresources"
 log_success "Xresources 已链接并合并。"
 
-# File Manager Actions
-mkdir -p "$HOME/.local/share/file-manager"
-rm -rf "$HOME/.local/share/file-manager/actions"
-ln -s "$REPO_DIR/config/pcmanfm/actions" "$HOME/.local/share/file-manager/actions"
-log_success "文件管理器动作已链接。"
+# File Manager Actions (Nemo)
+mkdir -p "$HOME/.local/share/nemo"
+rm -rf "$HOME/.local/share/nemo/actions"
+ln -s "$REPO_DIR/config/nemo/actions" "$HOME/.local/share/nemo/actions"
+log_success "Nemo 文件管理器动作已链接。"
 
 
 

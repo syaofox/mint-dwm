@@ -1,0 +1,7 @@
+[Nemo Action]
+Name=Create Symlink
+Comment=Create Symbolic Link
+Icon-Name=emblem-symbolic-link
+Exec=sh -c 'ln -s "$1" "$2/Link to $(basename "$1")"' -- %f %d
+Selection=S
+Mimetypes=all/allfiles;

@@ -42,7 +42,7 @@ sudo apt install build-essential python3-dev libx11-dev libxinerama-dev libxft-d
 为了获得完整的体验，需要安装以下软件：
 
 *   **基础工具**: `dunst` (通知), `feh` (壁纸), `pasystray` (PulseAudio 托盘), `picom` (可选，合成器), `wireplumber` (提供 wpctl 音量控制), `xfce4-clipman` (剪贴板), `xdotool` (模拟按键) `rofi` (应用启动器) `vim` (文本编辑器) `fcitx5` (输入法)
-*   **增强工具**: `ffmpeg` (视频缩略图/信息), `zenity` (脚本弹窗), `x11-xserver-utils` (xrdb, 必须安装), `bulky` (批量重命名), `catfish` (文件搜索, Thunar 动作需要), `pcmanfm` (文件管理器)
+*   **增强工具**: `ffmpeg` (视频缩略图/信息), `zenity` (脚本弹窗), `x11-xserver-utils` (xrdb, 必须安装), `bulky` (批量重命名), `catfish` (文件搜索, Thunar 动作需要), `nemo` (文件管理器)
 *   **XFCE 组件**: `xfce4-appfinder` (应用启动器), `thunar` (文件管理器)
 *   **其他**: `maim` (截图), `xclip` (剪贴板管理), `libpolkit-gnome-1-0` (Polkit 代理), `gnome-keyring` (密码管理), `trash-cli` (垃圾桶) `imagemagick` (图片处理) `lxappearance` (主题管理)
 *   **浏览器**: `brave-browser` (配置中默认使用，可修改)
@@ -50,7 +50,7 @@ sudo apt install build-essential python3-dev libx11-dev libxinerama-dev libxft-d
 *   **搜索工具**: `fsearch` (配置中默认使用 Flatpak 版本)
 
 ```bash
-sudo apt install dunst feh pasystray picom wireplumber xfce4-clipman xdotool maim xclip rofi ffmpeg zenity x11-xserver-utils bulky catfish vim pcmanfm lxappearance fcitx5 fcitx5-chinese-addons fcitx5-frontend-gtk3 fcitx5-frontend-gtk4 fcitx5-frontend-qt5 fcitx5-material-color
+sudo apt install dunst feh pasystray picom wireplumber xfce4-clipman xdotool maim xclip rofi ffmpeg zenity x11-xserver-utils bulky catfish vim nemo lxappearance fcitx5 fcitx5-chinese-addons fcitx5-frontend-gtk3 fcitx5-frontend-gtk4 fcitx5-frontend-qt5 fcitx5-material-color
 ```
 
 ### 字体
@@ -90,13 +90,13 @@ ln -sf ~/.config/mint-dwm/config/.Xresources ~/.Xresources
 # 使配置立即生效
 xrdb -merge ~/.Xresources
 
-# 2. 链接 PCManFM / Nemo / Thunar 动作脚本
+# 2. 链接 Nemo 动作脚本
 # 确保父目录存在
-mkdir -p ~/.local/share/file-manager
+mkdir -p ~/.local/share/nemo
 # 链接整个目录 (推荐：新增动作可自动生效)
 # 注意：这会替换原有的 actions 目录，如有自定义动作请先备份
-rm -rf ~/.local/share/file-manager/actions
-ln -s ~/.config/mint-dwm/config/pcmanfm/actions ~/.local/share/file-manager/actions
+rm -rf ~/.local/share/nemo/actions
+ln -s ~/.config/mint-dwm/config/nemo/actions ~/.local/share/nemo/actions
 
 # 3. (可选) 链接 Thunar 自定义动作配置
 # 注意：这会覆盖原有的 Thunar 动作配置
@@ -153,7 +153,7 @@ Type=XSession
 | :--- | :--- | :--- |
 | `Mod + Return` | 打开终端 | `x-terminal-emulator` |
 | `Mod + Space` | 打开应用菜单 | `xfce4-appfinder` |
-| `Mod + e` | 打开文件管理器 | `thunar` |
+| `Mod + e` | 打开文件管理器 | `nemo` |
 | `Mod + w` | 打开浏览器 | `brave-browser` |
 | `Mod + Shift + w` | 切换壁纸 | `wallpaper-next.sh` |
 | `Mod + f` | 文件搜索 | `fsearch` |

@@ -164,7 +164,7 @@ ResourcePref resources[] = {
 		{ "showsystray",        INTEGER, &showsystray },
 		{ "focusonhover",       INTEGER, &focusonhover },
 };
-static const char *filecmd[]  = { "/usr/bin/pcmanfm",  NULL };
+static const char *filecmd[]  = { "/usr/bin/nemo",  NULL };
 static const char *screenshotcmd[]  = { "/bin/sh", "-c", SCRIPTS_DIR "screenshot.sh copy", NULL };
 static const char *screenshotsavedcmd[] = { "/bin/sh", "-c", SCRIPTS_DIR "screenshot.sh save", NULL };
 static const char *wallpapercmd[]  = { "/bin/sh", "-c", SCRIPTS_DIR "wallpaper-next.sh", NULL };
