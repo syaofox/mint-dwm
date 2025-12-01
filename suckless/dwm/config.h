@@ -168,7 +168,7 @@ static const char *filecmd[]  = { "/usr/bin/nemo",  NULL };
 static const char *screenshotcmd[]  = { "/bin/sh", "-c", SCRIPTS_DIR "screenshot.sh copy", NULL };
 static const char *screenshotsavedcmd[] = { "/bin/sh", "-c", SCRIPTS_DIR "screenshot.sh save", NULL };
 static const char *wallpapercmd[]  = { "/bin/sh", "-c", SCRIPTS_DIR "wallpaper-next.sh", NULL };
-static const char *browsercmd[]  = { "/bin/sh", "-c", "env LANGUAGE=zh_CN LANG=zh_CN.UTF-8 LC_ALL=zh_CN.UTF-8 /usr/bin/brave-browser-stable --unsafely-treat-insecure-origin-as-secure=http://10.10.10.5:8080/", NULL };
+static const char *browsercmd[]  = { "/bin/sh", "-c", SCRIPTS_DIR "run-brave.sh", NULL };
 static const char *slockcmd[]  = { "/bin/sh", "-c", "slock", NULL };
 static const char *fsearchcmd[]  = { "/bin/sh", "-c", "flatpak run --branch=stable --arch=x86_64 --command=fsearch io.github.cboxdoerfer.FSearch", NULL };
 static const char *upvol[]   = { "/bin/sh", "-c", SCRIPTS_DIR "volume.sh up",   NULL };
