@@ -96,6 +96,40 @@ else
     log_info "未找到 GTK 主题目录 ($THEME_DIR_SRC)，跳过 GTK 主题安装。"
 fi
 
+# 4. 安装 GTK 图标主题（自动识别 gtk-icons 下所有压缩包）
+ICON_DIR_SRC="$REPO_DIR/gtk-icons"
+ICON_TARGET_DIR="$HOME/.icons"
+if [ -d "$ICON_DIR_SRC" ]; then
+    mkdir -p "$ICON_TARGET_DIR"
+    shopt -s nullglob
+    ICON_ARCHIVES=("$ICON_DIR_SRC"/*.tar "$ICON_DIR_SRC"/*.tar.gz "$ICON_DIR_SRC"/*.tar.xz "$ICON_DIR_SRC"/*.tgz)
+    if [ ${#ICON_ARCHIVES[@]} -eq 0 ]; then
+        log_info "gtk-icons 目录中没有找到任何图标主题压缩包，跳过 GTK 图标主题安装。"
+    else
+        for ICON_ARCHIVE in "${ICON_ARCHIVES[@]}"; do
+            BASENAME="$(basename "$ICON_ARCHIVE")"
+            log_info "安装 GTK 图标主题包: $BASENAME 到用户图标目录 ($ICON_TARGET_DIR)..."
+            TMP_ICON_DIR="$(mktemp -d)"
+            if tar -xf "$ICON_ARCHIVE" -C "$TMP_ICON_DIR"; then
+                # 解压后可能包含一个或多个目录，这里全部移动到 ~/.icons
+                find "$TMP_ICON_DIR" -mindepth 1 -maxdepth 1 -type d -print0 | while IFS= read -r -d '' dir; do
+                    ICON_NAME="$(basename "$dir")"
+                    # 覆盖已有同名目录
+                    rm -rf "$ICON_TARGET_DIR/$ICON_NAME"
+                    mv "$dir" "$ICON_TARGET_DIR/"
+                    log_success "GTK 图标主题已安装: $ICON_TARGET_DIR/$ICON_NAME"
+                done
+            else
+                log_error "解压 GTK 图标主题包失败: $BASENAME"
+            fi
+            rm -rf "$TMP_ICON_DIR"
+        done
+    fi
+    shopt -u nullglob
+else
+    log_info "未找到 GTK 图标主题目录 ($ICON_DIR_SRC)，跳过 GTK 图标主题安装。"
+fi
+
 # 3. 配置软链接
 log_info "配置软链接..."
 
