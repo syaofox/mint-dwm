@@ -7,6 +7,6 @@ Profiles=profile-zero;
 
 [X-Action-Profile profile-zero]
 MimeTypes=all/all;all/allfiles;inode/directory;text/plain;application/octet-stream;
-Exec=/home/syaofox/.config/mint-dwm/scripts/pcmanfm-move-to-folder.sh %F
+Exec=/home/syaofox/.config/mint-dwm/scripts/fm-move-to-folder.sh %F
 Name=Default profile
 SelectionCount=>0

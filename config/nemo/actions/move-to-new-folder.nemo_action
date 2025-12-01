@@ -4,6 +4,6 @@ Name[zh_CN]=移动到新文件夹
 Comment=Move the selected files to a new folder
 Comment[zh_CN]=将选定的文件移动到一个新的文件夹
 Icon-Name=folder-new
-Exec=/home/syaofox/.config/mint-dwm/scripts/pcmanfm-move-to-folder.sh %F
+Exec=/home/syaofox/.config/mint-dwm/scripts/fm-move-to-folder.sh %F
 Selection=Any
 Mimetypes=all/allfiles;text/plain;application/octet-stream;
