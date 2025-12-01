@@ -128,5 +128,14 @@ mkdir -p "$HOME/Pictures/Screenshots"
 mkdir -p "$HOME/.cache"
 log_success "用户目录已创建 (Pictures/Screenshots, .cache)。"
 
+# 8. 设置 Nemo 终端为 st（依赖 Cinnamon 的 gsettings 配置）
+log_info "将 Nemo/桌面默认终端设置为 st..."
+if command -v gsettings >/dev/null 2>&1; then
+    gsettings set org.cinnamon.desktop.default-applications.terminal exec 'st'
+    log_success "Nemo 默认终端已设置为 st。"
+else
+    log_error "未找到 gsettings 命令，无法自动设置 Nemo 默认终端。"
+fi
+
 log_success "Mint DWM 安装完成！请注销并选择 Dwm 会话登录。"
 
