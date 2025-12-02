@@ -78,18 +78,18 @@
     per_monitor_dpi = false
 
 [urgency_low]
-    background = "#0d1416"
-    foreground = "#c5d9dc"
-    frame_color = "#60DEEC"
+    background = "#2E3440"
+    foreground = "#D8DEE9"
+    frame_color = "#88C0D0"
     timeout = 10
-    highlight = "#60DEEC"
+    highlight = "#88C0D0"
 
 [urgency_normal]
-    background = "#1a2529"
-    foreground = "#c5d9dc"
-    frame_color = "#60DEEC"
+    background = "#3B4252"
+    foreground = "#D8DEE9"
+    frame_color = "#88C0D0"
     timeout = 10
-    highlight = "#60DEEC"
+    highlight = "#88C0D0"
 
 [urgency_critical]
     background = "#2a1515"

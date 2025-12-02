@@ -1,0 +1,93 @@
+! Xresources configuration - mint-teal
+! Base on current mint-dwm theme
+
+! Fonts
+st.font: JetBrainsMono Nerd Font Propo:style=Bold:size=14:pixelsize=14:antialias=true:autohint=true
+
+! Colors
+st.background: #0d1416
+st.foreground: #c5d9dc
+st.cursorColor: #60DEEC
+
+! Normal colors
+st.color0:  #0d1416
+st.color1:  #ff5555
+st.color2:  #50fa7b
+st.color3:  #f1fa8c
+st.color4:  #bd93f9
+st.color5:  #ff79c6
+st.color6:  #60DEEC
+st.color7:  #bbbbbb
+
+! Bright colors
+st.color8:  #44475a
+st.color9:  #ff5555
+st.color10: #50fa7b
+st.color11: #f1fa8c
+st.color12: #bd93f9
+st.color13: #ff79c6
+st.color14: #60DEEC
+st.color15: #ffffff
+
+! Misc
+st.alpha: 0.8
+st.borderpx: 2
+
+! dwm settings
+dwm.font: JetBrainsMono Nerd Font Propo:style=Bold:size=14:pixelsize=14:antialias=true:autohint=true
+dwm.dmenufont: JetBrainsMono Nerd Font Propo:style=Bold:size=14:pixelsize=14:antialias=true:autohint=true
+dwm.statusfont: JetBrainsMono Nerd Font Propo:style=Bold:size=14:pixelsize=14:antialias=true:autohint=true
+dwm.tagsfont: JetBrainsMono Nerd Font Propo:style=Bold:size=16:pixelsize=16:antialias=true:autohint=true
+
+! Colors
+dwm.normbgcolor:     #0d1416
+dwm.normbordercolor: #1a2529
+dwm.normfgcolor:     #2a3539
+dwm.selfgcolor:      #c5d9dc
+dwm.selbordercolor:  #60DEEC
+dwm.selbgcolor:      #0d1416
+dwm.accentcolor:     #60DEEC
+dwm.underlinecolor:  #ad8ee6
+
+! Layout / gaps
+dwm.borderpx: 2
+dwm.snap: 32
+dwm.showbar: 1
+dwm.topbar: 1
+dwm.nmaster: 1
+dwm.resizehints: 0
+dwm.mfact: 0.55
+
+dwm.gappih: 6
+dwm.gappiv: 4
+dwm.gappoh: 4
+dwm.gappov: 4
+dwm.smartgaps: 0
+
+! Bar
+dwm.barheight: 30
+dwm.tagunderlineheight: 2
+dwm.tagunderlinepad: 4
+
+! Systray
+dwm.systraypinning: 0
+dwm.systrayonleft: 0
+dwm.systraypinningfailfirst: 1
+dwm.systrayspacing: 2
+dwm.systrayiconsize: 16
+dwm.showsystray: 1
+
+! Behavior
+dwm.focusedontoptiled: 1
+dwm.focusonhover: 0
+
+! slstatus colors
+slstatus.color_netspeed:    #bbbbbb
+slstatus.color_cpu:         #bd93f9
+slstatus.color_ram:         #bd93f9
+slstatus.color_gpu:         #60DEEC
+slstatus.color_vol:         #f1fa8c
+slstatus.color_datetime:    #ff79c6
+slstatus.color_indicators:  #ff5555
+
+

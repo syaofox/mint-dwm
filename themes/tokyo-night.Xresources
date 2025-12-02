@@ -1,0 +1,97 @@
+! Xresources configuration - Tokyo Night (dark)
+
+! Fonts
+st.font: JetBrainsMono Nerd Font Propo:style=Bold:size=14:pixelsize=14:antialias=true:autohint=true
+
+! Base Tokyo Night palette (approx)
+! bg:      #1a1b26
+! fg:      #c0caf5
+! cursor:  #7dcfff
+
+! Colors
+st.background: #1a1b26
+st.foreground: #c0caf5
+st.cursorColor: #7dcfff
+
+! Normal colors
+st.color0:  #15161e
+st.color1:  #f7768e
+st.color2:  #9ece6a
+st.color3:  #e0af68
+st.color4:  #7aa2f7
+st.color5:  #bb9af7
+st.color6:  #7dcfff
+st.color7:  #a9b1d6
+
+! Bright colors
+st.color8:  #414868
+st.color9:  #f7768e
+st.color10: #9ece6a
+st.color11: #e0af68
+st.color12: #7aa2f7
+st.color13: #bb9af7
+st.color14: #7dcfff
+st.color15: #c0caf5
+
+! Misc
+st.alpha: 0.8
+st.borderpx: 2
+
+! dwm settings
+dwm.font: JetBrainsMono Nerd Font Propo:style=Bold:size=14:pixelsize=14:antialias=true:autohint=true
+dwm.dmenufont: JetBrainsMono Nerd Font Propo:style=Bold:size=14:pixelsize=14:antialias=true:autohint=true
+dwm.statusfont: JetBrainsMono Nerd Font Propo:style=Bold:size=14:pixelsize=14:antialias=true:autohint=true
+dwm.tagsfont: JetBrainsMono Nerd Font Propo:style=Bold:size=16:pixelsize=16:antialias=true:autohint=true
+
+! Colors
+dwm.normbgcolor:     #1a1b26
+dwm.normbordercolor: #24283b
+dwm.normfgcolor:     #414868
+dwm.selfgcolor:      #c0caf5
+dwm.selbordercolor:  #7dcfff
+dwm.selbgcolor:      #1a1b26
+dwm.accentcolor:     #7dcfff
+dwm.underlinecolor:  #7aa2f7
+
+! Layout / gaps
+dwm.borderpx: 2
+dwm.snap: 32
+dwm.showbar: 1
+dwm.topbar: 1
+dwm.nmaster: 1
+dwm.resizehints: 0
+dwm.mfact: 0.55
+
+dwm.gappih: 6
+dwm.gappiv: 4
+dwm.gappoh: 4
+dwm.gappov: 4
+dwm.smartgaps: 0
+
+! Bar
+dwm.barheight: 30
+dwm.tagunderlineheight: 2
+dwm.tagunderlinepad: 4
+
+! Systray
+dwm.systraypinning: 0
+dwm.systrayonleft: 0
+dwm.systraypinningfailfirst: 1
+dwm.systrayspacing: 2
+dwm.systrayiconsize: 16
+dwm.showsystray: 1
+
+! Behavior
+dwm.focusedontoptiled: 1
+dwm.focusonhover: 0
+
+! slstatus colors
+slstatus.color_netspeed:    #a9b1d6
+slstatus.color_cpu:         #7aa2f7
+slstatus.color_ram:         #7aa2f7
+slstatus.color_gpu:         #7dcfff
+slstatus.color_vol:         #e0af68
+slstatus.color_datetime:    #bb9af7
+slstatus.color_indicators:  #f7768e
+
+
