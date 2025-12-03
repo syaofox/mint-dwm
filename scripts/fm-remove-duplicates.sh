@@ -110,8 +110,6 @@ if [ $? -eq 0 ]; then
             rm -f "$file"
         done < "$DUPLICATES_FILE"
     ) | zenity --progress --pulsate --title="$TITLE" --text="正在删除..." --auto-close
-
-    zenity --info --title="$TITLE" --text="清理完成！已删除 $DUP_COUNT 个重复文件。" --width=300
 fi
 
 # 清理
