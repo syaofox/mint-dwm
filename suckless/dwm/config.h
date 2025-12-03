@@ -170,7 +170,7 @@ static const char *screenshotsavedcmd[] = { "/bin/sh", "-c", SCRIPTS_DIR "screen
 static const char *wallpapercmd[]  = { "/bin/sh", "-c", SCRIPTS_DIR "wallpaper-next.sh", NULL };
 static const char *browsercmd[]  = { "/bin/sh", "-c", SCRIPTS_DIR "run-brave.sh", NULL };
 static const char *slockcmd[]  = { "/bin/sh", "-c", "slock", NULL };
-static const char *fsearchcmd[]  = { "/bin/sh", "-c", "flatpak run --branch=stable --arch=x86_64 --command=fsearch io.github.cboxdoerfer.FSearch", NULL };
+static const char *fsearchcmd[]  = { "/bin/sh", "-c", SCRIPTS_DIR "run-fsearch.sh", NULL };
 static const char *upvol[]   = { "/bin/sh", "-c", SCRIPTS_DIR "volume.sh up",   NULL };
 static const char *downvol[] = { "/bin/sh", "-c", SCRIPTS_DIR "volume.sh down", NULL };
 static const char *mutevol[] = { "/bin/sh", "-c", SCRIPTS_DIR "volume.sh mute", NULL };
