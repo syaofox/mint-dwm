@@ -48,7 +48,7 @@ static char *colors[][3]      = {
 
 
 /* tagging */
-static const char *tags[] = { "", "", "3", "4", "", "󰠟", "󰟀", "", "󰓦" };
+static const char *tags[] = { "", "", "3", "", "", "󰠟", "󰟀", "", "󰓦" };
 
 static const Rule rules[] = {
 	/* xprop(1):
@@ -83,6 +83,7 @@ static const Rule rules[] = {
 	{ "Io.github.celluloid_player.Celluloid", NULL,                                   NULL,                       0,      1, 1, -1, 0.0, 0.0,      1 },
 	{ "Xviewer",                              NULL,                                   NULL,                       0,      1, 1, -1, 0.0, 0.0,      1 },
 	{ "fr.handbrake.ghb",                     NULL,                                   NULL,                       1 << 4, 0, 0, -1, 0.0, 0.0,      0 },
+	{ "CherryStudio",                     	  NULL,                                   NULL,                       1 << 3, 0, 0, -1, 0.0, 0.0,      0 },
 
 };
 
