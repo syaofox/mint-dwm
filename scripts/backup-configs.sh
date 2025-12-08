@@ -128,42 +128,50 @@ echo ""
 echo "【应用启动器配置】"
 backup_dir "$HOME/.config/rofi/themes" "$BACKUP_DIR/rofi/themes" "Rofi 主题目录"
 
-# 3. Fcitx5 输入法
+# 3. Nemo 文件管理器配置
+echo ""
+echo "【文件管理器配置】"
+backup_dir "$HOME/.config/nemo" "$BACKUP_DIR/nemo/config" "Nemo 配置目录"
+backup_dir "$HOME/.local/share/nemo/scripts" "$BACKUP_DIR/nemo/scripts" "Nemo 自定义脚本"
+backup_dir "$HOME/.local/share/nemo/search-helpers" "$BACKUP_DIR/nemo/search-helpers" "Nemo 搜索助手"
+# 注意：~/.local/share/nemo/actions 通过软链接指向项目目录，无需备份
+
+# 4. Fcitx5 输入法
 echo ""
 echo "【输入法配置】"
 backup_dir "$HOME/.config/fcitx5" "$BACKUP_DIR/fcitx5" "Fcitx5 配置目录"
 backup_dir "$HOME/.local/share/fcitx5/pinyin" "$BACKUP_DIR/fcitx5/pinyin" "Fcitx5 自定义词组和词库"
 backup_dir "$HOME/.local/share/fcitx5/themes" "$BACKUP_DIR/fcitx5/themes" "Fcitx5 自定义主题"
 
-# 4. Git 配置
+# 5. Git 配置
 echo ""
 echo "【Git 配置】"
 backup_file "$HOME/.gitconfig" "$BACKUP_DIR/git/.gitconfig" "Git 全局配置"
 backup_file "$HOME/.gitignore_global" "$BACKUP_DIR/git/.gitignore_global" "Git 全局忽略文件"
 
-# 5. SSH 配置
+# 6. SSH 配置
 echo ""
 echo "【SSH 配置】"
 backup_dir "$HOME/.ssh" "$BACKUP_DIR/ssh" "SSH 配置目录（包含密钥）"
 
-# 6. GPG 配置
+# 7. GPG 配置
 echo ""
 echo "【GPG 配置】"
 backup_dir "$HOME/.gnupg" "$BACKUP_DIR/gnupg" "GPG 配置目录"
 
-# 7. 系统字体配置
+# 8. 系统字体配置
 echo ""
 echo "【字体配置】"
 backup_file "$HOME/.fonts.conf" "$BACKUP_DIR/fonts/.fonts.conf" "字体配置"
 backup_dir "$HOME/.local/share/fonts" "$BACKUP_DIR/fonts/local_fonts" "本地字体目录"
 
-# 8. GTK 主题配置
+# 9. GTK 主题配置
 echo ""
 echo "【GTK 主题配置】"
 backup_file "$HOME/.config/gtk-3.0/settings.ini" "$BACKUP_DIR/gtk/gtk-3.0/settings.ini" "GTK3 设置"
 backup_file "$HOME/.config/gtk-4.0/settings.ini" "$BACKUP_DIR/gtk/gtk-4.0/settings.ini" "GTK4 设置"
 
-# 9. 其他常用配置
+# 10. 其他常用配置
 echo ""
 echo "【其他配置】"
 backup_file "$HOME/.bashrc" "$BACKUP_DIR/shell/.bashrc" "Bash 配置"
@@ -173,14 +181,14 @@ backup_file "$HOME/.zshrc" "$BACKUP_DIR/shell/.zshrc" "Zsh 配置（如果使用
 backup_file "$HOME/.vimrc" "$BACKUP_DIR/vim/.vimrc" "Vim 配置"
 backup_dir "$HOME/.vim" "$BACKUP_DIR/vim/.vim" "Vim 插件目录"
 
-# 10. 系统服务配置（systemd user units）
+# 11. 系统服务配置（systemd user units）
 echo ""
 echo "【系统服务配置】"
 if [ -d "$HOME/.config/systemd/user" ]; then
     backup_dir "$HOME/.config/systemd/user" "$BACKUP_DIR/systemd/user" "Systemd 用户服务"
 fi
 
-# 11. 环境变量配置
+# 12. 环境变量配置
 echo ""
 echo "【环境变量配置】"
 backup_file "$HOME/.pam_environment" "$BACKUP_DIR/env/.pam_environment" "PAM 环境变量"
@@ -204,6 +212,7 @@ cat > "$BACKUP_DIR/backup_info.txt" << EOF
 备份内容:
 - MPV 脚本目录（如果存在）
 - Rofi 主题目录（如果存在）
+- Nemo 文件管理器配置（配置、自定义脚本、搜索助手）
 - 输入法配置 (Fcitx5: 配置、自定义词组、词库、主题)
 - Git 配置
 - SSH 配置

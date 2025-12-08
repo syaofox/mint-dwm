@@ -198,20 +198,28 @@ echo ""
 echo "【应用启动器配置】"
 restore_file "$SELECTED_BACKUP/rofi/themes" "$HOME/.config/rofi/themes" "Rofi 主题目录"
 
-# 3. Fcitx5
+# 3. Nemo 文件管理器配置
+echo ""
+echo "【文件管理器配置】"
+restore_file "$SELECTED_BACKUP/nemo/config" "$HOME/.config/nemo" "Nemo 配置目录"
+restore_file "$SELECTED_BACKUP/nemo/scripts" "$HOME/.local/share/nemo/scripts" "Nemo 自定义脚本"
+restore_file "$SELECTED_BACKUP/nemo/search-helpers" "$HOME/.local/share/nemo/search-helpers" "Nemo 搜索助手"
+# 注意：~/.local/share/nemo/actions 通过 install.sh 创建软链接，无需还原
+
+# 4. Fcitx5
 echo ""
 echo "【输入法配置】"
 restore_file "$SELECTED_BACKUP/fcitx5" "$HOME/.config/fcitx5" "Fcitx5 配置目录"
 restore_file "$SELECTED_BACKUP/fcitx5/pinyin" "$HOME/.local/share/fcitx5/pinyin" "Fcitx5 自定义词组和词库"
 restore_file "$SELECTED_BACKUP/fcitx5/themes" "$HOME/.local/share/fcitx5/themes" "Fcitx5 自定义主题"
 
-# 4. Git
+# 5. Git
 echo ""
 echo "【Git 配置】"
 restore_file "$SELECTED_BACKUP/git/.gitconfig" "$HOME/.gitconfig" "Git 全局配置"
 restore_file "$SELECTED_BACKUP/git/.gitignore_global" "$HOME/.gitignore_global" "Git 全局忽略文件"
 
-# 5. SSH
+# 6. SSH
 echo ""
 echo "【SSH 配置】"
 echo -e "${YELLOW}⚠${NC} SSH 配置包含敏感信息（密钥）"
@@ -231,7 +239,7 @@ else
     ((SKIP_COUNT++))
 fi
 
-# 6. GPG
+# 7. GPG
 echo ""
 echo "【GPG 配置】"
 echo -e "${YELLOW}⚠${NC} GPG 配置包含敏感信息（密钥）"
@@ -249,19 +257,19 @@ else
     ((SKIP_COUNT++))
 fi
 
-# 7. 字体
+# 8. 字体
 echo ""
 echo "【字体配置】"
 restore_file "$SELECTED_BACKUP/fonts/.fonts.conf" "$HOME/.fonts.conf" "字体配置"
 restore_file "$SELECTED_BACKUP/fonts/local_fonts" "$HOME/.local/share/fonts" "本地字体目录"
 
-# 8. GTK
+# 9. GTK
 echo ""
 echo "【GTK 主题配置】"
 restore_file "$SELECTED_BACKUP/gtk/gtk-3.0/settings.ini" "$HOME/.config/gtk-3.0/settings.ini" "GTK3 设置"
 restore_file "$SELECTED_BACKUP/gtk/gtk-4.0/settings.ini" "$HOME/.config/gtk-4.0/settings.ini" "GTK4 设置"
 
-# 9. Shell 配置
+# 10. Shell 配置
 echo ""
 echo "【Shell 配置】"
 restore_file "$SELECTED_BACKUP/shell/.bashrc" "$HOME/.bashrc" "Bash 配置"
@@ -269,18 +277,18 @@ restore_file "$SELECTED_BACKUP/shell/.bash_aliases" "$HOME/.bash_aliases" "Bash 
 restore_file "$SELECTED_BACKUP/shell/.profile" "$HOME/.profile" "Profile 配置"
 restore_file "$SELECTED_BACKUP/shell/.zshrc" "$HOME/.zshrc" "Zsh 配置"
 
-# 10. Vim
+# 11. Vim
 echo ""
 echo "【Vim 配置】"
 restore_file "$SELECTED_BACKUP/vim/.vimrc" "$HOME/.vimrc" "Vim 配置"
 restore_file "$SELECTED_BACKUP/vim/.vim" "$HOME/.vim" "Vim 插件目录"
 
-# 11. Systemd
+# 12. Systemd
 echo ""
 echo "【系统服务配置】"
 restore_file "$SELECTED_BACKUP/systemd/user" "$HOME/.config/systemd/user" "Systemd 用户服务"
 
-# 12. 环境变量
+# 13. 环境变量
 echo ""
 echo "【环境变量配置】"
 restore_file "$SELECTED_BACKUP/env/.pam_environment" "$HOME/.pam_environment" "PAM 环境变量"
