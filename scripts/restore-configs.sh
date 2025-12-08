@@ -3,7 +3,7 @@
 # 配置文件还原脚本
 # 从备份中还原配置文件
 
-set -e  # 遇到错误立即退出
+# 注意：不使用 set -e，因为还原脚本需要优雅处理文件不存在或用户选择跳过的情况
 
 # 颜色输出
 RED='\033[0;31m'
@@ -41,9 +41,17 @@ restore_file() {
         fi
         
         # 创建目标目录
-        mkdir -p "$(dirname "$dest")"
+        mkdir -p "$(dirname "$dest")" || {
+            echo -e "${RED}✗${NC} 无法创建目标目录: $(dirname "$dest")"
+            ((SKIP_COUNT++))
+            return 1
+        }
         # 复制文件或目录
-        cp -r "$src" "$dest"
+        if ! cp -r "$src" "$dest" 2>/dev/null; then
+            echo -e "${RED}✗${NC} 还原失败: $desc"
+            ((SKIP_COUNT++))
+            return 1
+        fi
         echo -e "${GREEN}✓${NC} $desc"
         ((RESTORE_COUNT++))
         return 0
@@ -112,8 +120,17 @@ extract_archive() {
     if [ -f "$archive" ]; then
         echo "检测到压缩包，正在解压..."
         local extract_dir="${BACKUP_BASE_DIR}/temp_extract_$$"
-        mkdir -p "$extract_dir"
-        tar -xzf "$archive" -C "$extract_dir"
+        if ! mkdir -p "$extract_dir"; then
+            echo -e "${RED}错误: 无法创建临时解压目录${NC}"
+            exit 1
+        fi
+        
+        if ! tar -xzf "$archive" -C "$extract_dir" 2>/dev/null; then
+            echo -e "${RED}错误: 解压压缩包失败${NC}"
+            rm -rf "$extract_dir"
+            exit 1
+        fi
+        
         # 查找解压后的备份目录
         local extracted_backup=$(find "$extract_dir" -maxdepth 1 -type d -name "backup_*" | head -n 1)
         if [ -n "$extracted_backup" ]; then
