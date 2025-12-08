@@ -91,6 +91,112 @@ install_gtk_icons() {
     fi
 }
 
+# 设置和检查软链接
+setup_symlinks() {
+    log_info "检查并设置配置文件软链接..."
+    
+    # 定义软链接数组：目标路径:源路径:描述
+    declare -a SYMLINKS=(
+        "$HOME/.Xresources:$REPO_DIR/config/.Xresources:Xresources 配置"
+        "$HOME/.local/share/nemo/actions:$REPO_DIR/config/nemo/actions:Nemo 文件管理器动作"
+        "$HOME/.config/alacritty/alacritty.toml:$REPO_DIR/config/alacritty.toml:Alacritty 终端配置"
+        "$HOME/.config/dunst/dunstrc:$REPO_DIR/config/dunstrc:Dunst 通知配置"
+        "$HOME/.config/picom/picom.conf:$REPO_DIR/config/picom.conf:Picom 合成器配置"
+        "$HOME/.config/mpv/mpv.conf:$REPO_DIR/config/mpv.conf:MPV 播放器配置"
+        "$HOME/.config/rofi/config.rasi:$REPO_DIR/config/rofi-theme.rasi:Rofi 启动器配置"
+    )
+    
+    local fixed_count=0
+    local created_count=0
+    local skipped_count=0
+    
+    for symlink_def in "${SYMLINKS[@]}"; do
+        IFS=':' read -r target source desc <<< "$symlink_def"
+        
+        # 检查源文件是否存在
+        if [ ! -e "$source" ]; then
+            log_info "跳过 $desc: 源文件不存在 ($source)"
+            ((skipped_count++))
+            continue
+        fi
+        
+        # 创建目标目录（如果需要）
+        local target_dir=$(dirname "$target")
+        if [ ! -d "$target_dir" ]; then
+            mkdir -p "$target_dir"
+        fi
+        
+        # 检查目标路径是否存在
+        if [ -e "$target" ]; then
+            # 如果是软链接，检查是否正确
+            if [ -L "$target" ]; then
+                local current_target=$(readlink -f "$target")
+                local expected_target=$(readlink -f "$source")
+                
+                if [ "$current_target" = "$expected_target" ]; then
+                    log_info "✓ $desc: 软链接已正确设置"
+                    continue
+                else
+                    log_info "修复 $desc: 软链接指向错误位置"
+                    rm -f "$target"
+                    # 如果是目录，使用 ln -s，否则使用 ln -sf
+                    if [ -d "$source" ]; then
+                        ln -s "$source" "$target"
+                    else
+                        ln -sf "$source" "$target"
+                    fi
+                    log_success "$desc: 已修复软链接"
+                    ((fixed_count++))
+                fi
+            else
+                # 如果是普通文件或目录，备份后创建软链接
+                local backup_path="${target}.backup.$(date +%Y%m%d_%H%M%S)"
+                log_info "备份现有 $desc 到: $backup_path"
+                # 如果是目录，需要递归删除
+                if [ -d "$target" ]; then
+                    rm -rf "$target"
+                else
+                    mv "$target" "$backup_path"
+                fi
+                # 如果是目录，使用 ln -s，否则使用 ln -sf
+                if [ -d "$source" ]; then
+                    ln -s "$source" "$target"
+                else
+                    ln -sf "$source" "$target"
+                fi
+                log_success "$desc: 已备份原文件并创建软链接"
+                ((fixed_count++))
+            fi
+        else
+            # 目标不存在，直接创建软链接
+            # 如果是目录，使用 ln -s，否则使用 ln -sf
+            if [ -d "$source" ]; then
+                ln -s "$source" "$target"
+            else
+                ln -sf "$source" "$target"
+            fi
+            log_success "$desc: 已创建软链接"
+            ((created_count++))
+        fi
+    done
+    
+    # 特殊处理：Xresources 需要合并到 X 服务器
+    if [ -L "$HOME/.Xresources" ] && [ -e "$HOME/.Xresources" ]; then
+        if command -v xrdb >/dev/null 2>&1; then
+            xrdb -merge "$HOME/.Xresources"
+            log_success "Xresources 已合并到 X 服务器"
+        else
+            log_info "未找到 xrdb 命令，跳过 Xresources 合并"
+        fi
+    fi
+    
+    echo ""
+    log_info "软链接设置完成:"
+    log_info "  - 已创建: $created_count 个"
+    log_info "  - 已修复: $fixed_count 个"
+    log_info "  - 已跳过: $skipped_count 个"
+}
+
 # 检查是否为 root 运行，有些命令需要 sudo
 if [ "$EUID" -eq 0 ]; then
   log_error "请不要直接以 root 用户运行此脚本，脚本内部会请求 sudo 权限。"
@@ -119,9 +225,19 @@ if [ -n "$ACTION" ]; then
             install_gtk_icons
             exit 0
             ;;
+        links|symlinks)
+            log_info "仅设置配置文件软链接..."
+            setup_symlinks
+            exit 0
+            ;;
         *)
             log_error "未知参数: $ACTION"
-            echo "用法: $0 [themes|icons]"
+            echo "用法: $0 [themes|icons|links]"
+            echo ""
+            echo "参数说明:"
+            echo "  themes   - 仅安装 GTK 主题"
+            echo "  icons    - 仅安装 GTK 图标主题"
+            echo "  links    - 仅检查并设置配置文件软链接"
             exit 1
             ;;
     esac
@@ -163,18 +279,7 @@ install_gtk_themes
 install_gtk_icons
 
 # 5. 配置软链接
-log_info "配置软链接..."
-
-# Xresources
-ln -sf "$REPO_DIR/config/.Xresources" "$HOME/.Xresources"
-xrdb -merge "$HOME/.Xresources"
-log_success "Xresources 已链接并合并。"
-
-# File Manager Actions (Nemo)
-mkdir -p "$HOME/.local/share/nemo"
-rm -rf "$HOME/.local/share/nemo/actions"
-ln -s "$REPO_DIR/config/nemo/actions" "$HOME/.local/share/nemo/actions"
-log_success "Nemo 文件管理器动作已链接。"
+setup_symlinks
 
 
 
