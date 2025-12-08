@@ -1718,7 +1718,7 @@ raiseclient(Client *c)
 	wc.sibling = m->barwin ? m->barwin : wmcheckwin;
 
 	/* If the raised client is always on top, then it should be raised first. */
-	if (c->alwaysontop && c->isfloating) {
+	if (c->alwaysontop && c->isfloating && ISVISIBLE(c)) {
 		top = c;
 		XRaiseWindow(dpy, c->win);
 		wc.stack_mode = Below;
@@ -1728,7 +1728,7 @@ raiseclient(Client *c)
 
 	/* Check if there are floating always on top clients that need to be on top. */
 	for (s = m->stack; s; s = s->snext) {
-		if (s == c || !s->isfloating || !s->alwaysontop)
+		if (s == c || !s->isfloating || !s->alwaysontop || !ISVISIBLE(s))
 			continue;
 
 		if (!top) {
@@ -1890,11 +1890,7 @@ restack(Monitor *m)
 	XWindowChanges wc;
 
 	drawbar(m);
-	if (!m->sel)
-		return;
-
-	raised = (focusedontoptiled || m->sel->isfloating ? m->sel : NULL);
-
+	
 	if (m->lt[m->sellt]->arrange) {
 		wc.stack_mode = Below;
 		wc.sibling = m->barwin;
@@ -1905,8 +1901,32 @@ restack(Monitor *m)
 			}
 	}
 
-	if (raised)
-		raiseclient(raised);
+	if (m->sel) {
+		raised = (focusedontoptiled || m->sel->isfloating ? m->sel : NULL);
+		if (raised)
+			raiseclient(raised);
+	} else {
+		/* 即使没有选中窗口，也要确保 alwaysontop 窗口被提升 */
+		Client *s, *top = NULL;
+		wc.stack_mode = Above;
+		wc.sibling = m->barwin ? m->barwin : wmcheckwin;
+		
+		for (s = m->stack; s; s = s->snext) {
+			if (!s->isfloating || !s->alwaysontop || !ISVISIBLE(s))
+				continue;
+			
+			if (!top) {
+				top = s;
+				XRaiseWindow(dpy, s->win);
+				wc.stack_mode = Below;
+				wc.sibling = s->win;
+				continue;
+			}
+			
+			XConfigureWindow(dpy, s->win, CWSibling|CWStackMode, &wc);
+			wc.sibling = s->win;
+		}
+	}
 
 	XSync(dpy, False);
 	while (XCheckMaskEvent(dpy, EnterWindowMask, &ev));
