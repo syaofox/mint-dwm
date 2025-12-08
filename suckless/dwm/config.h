@@ -64,7 +64,7 @@ static const Rule rules[] = {
 	/* brave app Youtube */
 	{ NULL,                                   "crx_agimnkijcaahngcdmfeangaknmldooml", NULL,                       1 << 7, 0, 0, -1, 0.0, 0.0,      0 },
 	{ "Virt-manager",                         NULL,                                   NULL,                       1 << 6, 0, 0, -1, 0.0, 0.0,      0 },
-	{ "Brave-browser",                        NULL,                                   NULL,                       1 << 0, 0, 0, -1, 0.0, 0.0,      0 },
+	// { "Brave-browser",                        NULL,                                   NULL,                       1 << 0, 0, 0, -1, 0.0, 0.0,      0 },
 	{ "Cursor",                               NULL,                                   NULL,                       1 << 1, 0, 0, -1, 0.0, 0.0,      0 },
 	{ "FreeFileSync",                         NULL,                                   NULL,                       1 << 8, 0, 0, -1, 0.0, 0.0,      0 },
 	{ "Localsend",                            "localsend",                            NULL,                       1 << 8, 0, 0, -1, 0.0, 0.0,      0 },
@@ -207,8 +207,8 @@ static const Key keys[] = {
 	{ 0,                            XF86XK_AudioRaiseVolume, spawn, {.v = upvol } },
 	{ ControlMask|Mod1Mask,         XK_Delete, spawn,          {.v = sysact } },
 	{ MODKEY,                       XK_b,      togglebar,      {0} }, /* 切换状态栏显示 */
-	{ MODKEY,                       XK_j,      focusstack,     {.i = +1 } }, /* 聚焦下一个窗口 */
-	{ MODKEY,                       XK_k,      focusstack,     {.i = -1 } }, /* 聚焦上一个窗口 */
+	{ MODKEY,                       XK_grave,  focusstack,     {.i = +1 } }, /* 聚焦下一个窗口 */
+	{ MODKEY|ShiftMask,             XK_grave,  focusstack,     {.i = -1 } }, /* 聚焦上一个窗口 */
 	{ MODKEY,                       XK_comma,  setmfact,       {.f = -0.05} }, /* 减小主区域大小 */
 	{ MODKEY,                       XK_period, setmfact,       {.f = +0.05} }, /* 增大主区域大小 */
 	{ MODKEY,                       XK_s,      zoom,           {0} }, /* 交换主窗口和栈窗口 */
