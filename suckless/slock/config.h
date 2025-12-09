@@ -13,7 +13,7 @@ static const char *colorname[NUMCOLS] = {
 static const int failonclear = 1;
 
 /* default message */
-static const char * message = "Simple is simple, double is double.";
+static const char * message = "Single is simple, double is double.";
 
 /* text color */
 static const char * text_color = "#ffffff";
