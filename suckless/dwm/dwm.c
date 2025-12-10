@@ -268,6 +268,7 @@ static void setfocus(Client *c);
 static void setfullscreen(Client *c, int fullscreen);
 static void setlayout(const Arg *arg);
 static void setmfact(const Arg *arg);
+static void resetmfact(const Arg *arg);
 static void setup(void);
 static void seturgent(Client *c, int urg);
 static void showhide(Client *c);
@@ -2133,6 +2134,21 @@ setmfact(const Arg *arg)
 	}
 	if (curtag >= 0)
 		selmon->tagmfact[curtag] = f;
+	arrange(selmon);
+}
+
+void
+resetmfact(const Arg *arg)
+{
+	int i;
+
+	if (!selmon->lt[selmon->sellt]->arrange)
+		return;
+	/* 将所有tag的mfact恢复为默认值 */
+	for (i = 0; i < LENGTH(tags); i++)
+		selmon->tagmfact[i] = mfact;
+	/* 恢复当前tag的mfact */
+	selmon->mfact = mfact;
 	arrange(selmon);
 }
 

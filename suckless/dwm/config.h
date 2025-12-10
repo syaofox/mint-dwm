@@ -211,6 +211,7 @@ static const Key keys[] = {
 	{ MODKEY|ShiftMask,             XK_grave,  focusstack,     {.i = -1 } }, /* 聚焦上一个窗口 */
 	{ MODKEY,                       XK_comma,  setmfact,       {.f = -0.05} }, /* 减小主区域大小 */
 	{ MODKEY,                       XK_period, setmfact,       {.f = +0.05} }, /* 增大主区域大小 */
+	{ MODKEY|ShiftMask,             XK_period, resetmfact,     {0} }, /* 恢复所有tag的主区域大小为默认值 */
 	{ MODKEY,                       XK_s,      zoom,           {0} }, /* 交换主窗口和栈窗口 */
 	{ MODKEY,                       XK_u,      incrgaps,       {.i = +1 } }, /* 增加间距 */
 	{ MODKEY|ShiftMask,             XK_u,      incrgaps,       {.i = -1 } }, /* 减少间距 */
