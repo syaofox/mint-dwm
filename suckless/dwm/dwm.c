@@ -142,6 +142,7 @@ typedef struct {
 struct Monitor {
 	char ltsymbol[16];
 	float mfact;
+	float tagmfact[32]; /* 每个tag的主区域大小（最多支持32个tag） */
 	int nmaster;
 	int num;
 	int by;               /* bar geometry */
@@ -810,10 +811,14 @@ Monitor *
 createmon(void)
 {
 	Monitor *m;
+	int i;
 
 	m = ecalloc(1, sizeof(Monitor));
 	m->tagset[0] = m->tagset[1] = 1;
 	m->mfact = mfact;
+	/* 初始化所有tag的mfact值 */
+	for (i = 0; i < LENGTH(tags); i++)
+		m->tagmfact[i] = mfact;
 	m->nmaster = nmaster;
 	m->showbar = showbar;
 	m->topbar = topbar;
@@ -2111,6 +2116,7 @@ void
 setmfact(const Arg *arg)
 {
 	float f;
+	int i, curtag = -1;
 
 	if (!arg || !selmon->lt[selmon->sellt]->arrange)
 		return;
@@ -2118,6 +2124,15 @@ setmfact(const Arg *arg)
 	if (f < 0.05 || f > 0.95)
 		return;
 	selmon->mfact = f;
+	/* 找到当前活动的tag（第一个设置的位）并更新其mfact值 */
+	for (i = 0; i < LENGTH(tags); i++) {
+		if (selmon->tagset[selmon->seltags] & (1 << i)) {
+			curtag = i;
+			break;
+		}
+	}
+	if (curtag >= 0)
+		selmon->tagmfact[curtag] = f;
 	arrange(selmon);
 }
 
@@ -2383,9 +2398,31 @@ void
 toggleview(const Arg *arg)
 {
 	unsigned int newtagset = selmon->tagset[selmon->seltags] ^ (arg->ui & TAGMASK);
+	int i, oldtag = -1, newtag = -1;
 
 	if (newtagset) {
+		/* 找到当前活动的tag（第一个设置的位）并保存其mfact值 */
+		for (i = 0; i < LENGTH(tags); i++) {
+			if (selmon->tagset[selmon->seltags] & (1 << i)) {
+				oldtag = i;
+				break;
+			}
+		}
+		if (oldtag >= 0)
+			selmon->tagmfact[oldtag] = selmon->mfact;
+
 		selmon->tagset[selmon->seltags] = newtagset;
+
+		/* 找到新活动的tag（第一个设置的位）并恢复其mfact值 */
+		for (i = 0; i < LENGTH(tags); i++) {
+			if (selmon->tagset[selmon->seltags] & (1 << i)) {
+				newtag = i;
+				break;
+			}
+		}
+		if (newtag >= 0)
+			selmon->mfact = selmon->tagmfact[newtag];
+
 		focus(NULL);
 		arrange(selmon);
 	}
@@ -2842,11 +2879,34 @@ updatewmhints(Client *c)
 void
 view(const Arg *arg)
 {
+	int i, oldtag = -1, newtag = -1;
+
 	if ((arg->ui & TAGMASK) == selmon->tagset[selmon->seltags])
 		return;
+	/* 找到当前活动的tag（第一个设置的位）并保存其mfact值 */
+	for (i = 0; i < LENGTH(tags); i++) {
+		if (selmon->tagset[selmon->seltags] & (1 << i)) {
+			oldtag = i;
+			break;
+		}
+	}
+	if (oldtag >= 0)
+		selmon->tagmfact[oldtag] = selmon->mfact;
+
 	selmon->seltags ^= 1; /* toggle sel tagset */
 	if (arg->ui & TAGMASK)
 		selmon->tagset[selmon->seltags] = arg->ui & TAGMASK;
+
+	/* 找到新活动的tag（第一个设置的位）并恢复其mfact值 */
+	for (i = 0; i < LENGTH(tags); i++) {
+		if (selmon->tagset[selmon->seltags] & (1 << i)) {
+			newtag = i;
+			break;
+		}
+	}
+	if (newtag >= 0)
+		selmon->mfact = selmon->tagmfact[newtag];
+
 	focus(NULL);
 	arrange(selmon);
 }
