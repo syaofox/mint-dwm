@@ -53,32 +53,142 @@ TITLE="重复文件清理"
 
 # 进度条处理
 (
-    count=0
     total=${#files_to_check[@]}
-    current_progress=0
-
+    processed=0
+    
+    # 第一步：按文件大小分组（只有相同大小的文件才可能是重复的）
+    echo "# 第一步：按文件大小分组..."
+    declare -A size_groups
     for file in "${files_to_check[@]}"; do
         if [ -f "$file" ]; then
+            size=$(stat -c%s "$file" 2>/dev/null || stat -f%z "$file" 2>/dev/null)
+            if [ -n "$size" ]; then
+                size_groups["$size"]+="$file"$'\n'
+            fi
+        fi
+        ((processed++))
+        progress=$((processed * 30 / total))
+        echo "$progress"
+        echo "# 正在分组: $(basename "$file")"
+    done
+    
+    # 统计需要比对的文件数量（相同大小的文件组中，每组至少2个文件）
+    files_to_hash=0
+    for size in "${!size_groups[@]}"; do
+        mapfile -t same_size_files < <(echo -n "${size_groups[$size]}" | grep -v '^$')
+        if [ ${#same_size_files[@]} -gt 1 ]; then
+            files_to_hash=$((files_to_hash + ${#same_size_files[@]}))
+        fi
+    done
+    
+    # 第二步：对相同大小的文件进行比对
+    echo "# 第二步：比对可能重复的文件..."
+    processed=0
+    
+    for size in "${!size_groups[@]}"; do
+        # 获取该大小下的所有文件
+        mapfile -t same_size_files < <(echo -n "${size_groups[$size]}" | grep -v '^$')
+        
+        # 如果只有一个文件，跳过（不可能有重复）
+        if [ ${#same_size_files[@]} -le 1 ]; then
+            continue
+        fi
+        
+        # 按修改时间分组（优化：相同修改时间的文件更可能是重复的，优先处理）
+        declare -A mtime_groups
+        declare -A processed_files  # 记录已处理的文件，避免重复计算MD5
+        
+        for file in "${same_size_files[@]}"; do
+            mtime=$(stat -c%Y "$file" 2>/dev/null || stat -f%m "$file" 2>/dev/null)
+            if [ -n "$mtime" ]; then
+                mtime_groups["$mtime"]+="$file"$'\n'
+            fi
+        done
+        
+        # 第一步：优先处理相同修改时间的文件组（这些更可能是重复的，效率更高）
+        # 对于相同修改时间的多个文件，组内比对可以快速发现重复
+        for mtime in "${!mtime_groups[@]}"; do
+            mapfile -t same_mtime_files < <(echo -n "${mtime_groups[$mtime]}" | grep -v '^$')
+            
+            # 如果只有一个文件，跳过组内比对，但后续仍会与其他修改时间的文件比对
+            if [ ${#same_mtime_files[@]} -le 1 ]; then
+                continue
+            fi
+            
+            # 对相同大小和相同修改时间的文件进行MD5比对
+            for file in "${same_mtime_files[@]}"; do
+                # 计算MD5，只取哈希值
+                sum=$(md5sum "$file" 2>/dev/null | cut -d ' ' -f 1)
+                
+                if [ -z "$sum" ]; then
+                    continue
+                fi
+                
+                # 标记为已处理
+                processed_files["$file"]=1
+                
+                # 检查哈希是否已记录
+                if grep -q "^$sum " "$HASH_FILE"; then
+                    # 已存在 -> 是重复文件
+                    echo "$file" >> "$DUPLICATES_FILE"
+                else
+                    # 不存在 -> 记录哈希和文件路径（用于后续比对）
+                    echo "$sum $file" >> "$HASH_FILE"
+                fi
+                
+                ((processed++))
+                if [ $files_to_hash -gt 0 ]; then
+                    progress=$((30 + processed * 70 / files_to_hash))
+                else
+                    progress=100
+                fi
+                echo "$progress"
+                echo "# 正在比对: $(basename "$file")"
+            done
+        done
+        
+        # 第二步：处理不同修改时间的文件（确保不遗漏重复文件）
+        # 只处理之前未处理过的文件（单文件组），与已记录的哈希进行比对
+        for file in "${same_size_files[@]}"; do
+            # 如果已经处理过，跳过
+            if [ -n "${processed_files[$file]}" ]; then
+                continue
+            fi
+            
             # 计算MD5，只取哈希值
-            sum=$(md5sum "$file" | cut -d ' ' -f 1)
+            sum=$(md5sum "$file" 2>/dev/null | cut -d ' ' -f 1)
+            
+            if [ -z "$sum" ]; then
+                continue
+            fi
             
             # 检查哈希是否已记录
-            if grep -q "^$sum$" "$HASH_FILE"; then
+            if grep -q "^$sum " "$HASH_FILE"; then
                 # 已存在 -> 是重复文件
                 echo "$file" >> "$DUPLICATES_FILE"
             else
-                # 不存在 -> 记录哈希
-                echo "$sum" >> "$HASH_FILE"
+                # 不存在 -> 记录哈希和文件路径（用于后续比对）
+                echo "$sum $file" >> "$HASH_FILE"
             fi
-        fi
+            
+            ((processed++))
+            if [ $files_to_hash -gt 0 ]; then
+                progress=$((30 + processed * 70 / files_to_hash))
+            else
+                progress=100
+            fi
+            echo "$progress"
+            echo "# 正在比对: $(basename "$file")"
+        done
         
-        # 更新进度条
-        # 这里简单估算
-        echo "# 正在检查: $(basename "$file")"
-        # 由于 shell 浮点运算麻烦，这里使用脉冲模式其实更好，但为了展示进度用了 bc
-        # 简单起见，不显示具体百分比数字，让 zenity 处理脉冲
+        # 清理当前大小的变量
+        unset mtime_groups
+        unset processed_files
     done
-) | zenity --progress --pulsate --title="$TITLE" --text="正在分析文件指纹..." --auto-close
+    
+    echo "100"
+    echo "# 分析完成"
+) | zenity --progress --title="$TITLE" --text="正在分析文件..." --percentage=0 --auto-close
 
 # 检查是否有重复文件
 if [ ! -s "$DUPLICATES_FILE" ]; then
