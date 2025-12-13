@@ -253,7 +253,7 @@ log_info "安装编译依赖..."
 sudo apt install -y build-essential python3-dev libx11-dev libxinerama-dev libxft-dev libxrandr-dev
 
 log_info "安装运行依赖..."
-sudo apt install -y dunst feh pasystray picom wireplumber xfce4-clipman xdotool maim xclip rofi ffmpeg zenity x11-xserver-utils bulky catfish vim nemo lxappearance fcitx5 fcitx5-chinese-addons fcitx5-frontend-gtk3 fcitx5-frontend-gtk4 fcitx5-frontend-qt5 fcitx5-material-color
+sudo apt install -y dunst feh pasystray picom wireplumber xfce4-clipman xdotool maim xclip rofi ffmpeg imagemagick zenity x11-xserver-utils bulky catfish vim nemo lxappearance fcitx5 fcitx5-chinese-addons fcitx5-frontend-gtk3 fcitx5-frontend-gtk4 fcitx5-frontend-qt5 fcitx5-material-color
 
 # 2. 安装字体
 log_info "安装 JetBrainsMono Nerd Font..."
