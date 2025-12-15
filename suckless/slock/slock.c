@@ -290,6 +290,16 @@ readpw(Display *dpy, struct xrandr *rr, struct lock **locks, int nscreens,
 				    (len + num < sizeof(passwd))) {
 					memcpy(passwd + len, buf, num);
 					len += num;
+					passwd[len] = '\0';
+					/* 自动验证密码 */
+					errno = 0;
+					if ((inputhash = crypt(passwd, hash))) {
+						if (!strcmp(inputhash, hash)) {
+							/* 密码正确，自动解锁 */
+							running = 0;
+							break;
+						}
+					}
 				} else if (buf[0] == '\025') { /* ctrl-u clears input */
 					explicit_bzero(&passwd, sizeof(passwd));
 					len = 0;
