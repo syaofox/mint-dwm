@@ -171,7 +171,6 @@ typedef struct {
 	const char *title;
 	unsigned int tags;
 	int isfloating;
-	int alwaysontop;
 	int monitor;
 	float height_percent;  /* height percentage of screen (0.0 = use default, >0.0 = use this percentage) */
 	float aspect_ratio;    /* width/height ratio (0.0 = use default, >0.0 = maintain this ratio) */
@@ -383,7 +382,6 @@ applyrules(Client *c)
 		{
 			c->isfloating = r->isfloating;
 			c->tags |= r->tags;
-			c->alwaysontop = r->alwaysontop;
 			c->rule_height_percent = r->height_percent;
 			c->rule_aspect_ratio = r->aspect_ratio;
 			c->rule_center = r->center;
@@ -395,6 +393,8 @@ applyrules(Client *c)
 				break;
 		}
 	}
+	/* 浮动窗口默认 alwaysontop */
+	c->alwaysontop = c->isfloating ? 1 : 0;
 	if (ch.res_class)
 		XFree(ch.res_class);
 	if (ch.res_name)
@@ -667,6 +667,8 @@ clientmessage(XEvent *e)
 			c->oldbw = wa.border_width;
 			c->bw = 0;
 			c->isfloating = True;
+			/* 浮动窗口默认 alwaysontop */
+			c->alwaysontop = 1;
 			/* reuse tags field as mapped status */
 			c->tags = 1;
 			updatesizehints(c);
@@ -1468,6 +1470,8 @@ manage(Window w, XWindowAttributes *wa)
 	grabbuttons(c, 0);
 	if (!c->isfloating)
 		c->isfloating = c->oldstate = trans != None || c->isfixed;
+	/* 浮动窗口默认 alwaysontop */
+	c->alwaysontop = c->isfloating ? 1 : 0;
 	if (c->isfloating) {
 		/* apply size rules if specified */
 		if (c->rule_height_percent > 0.0) {
@@ -1682,8 +1686,11 @@ propertynotify(XEvent *e)
 		default: break;
 		case XA_WM_TRANSIENT_FOR:
 			if (!c->isfloating && (XGetTransientForHint(dpy, c->win, &trans)) &&
-				(c->isfloating = (wintoclient(trans)) != NULL))
+				(c->isfloating = (wintoclient(trans)) != NULL)) {
+				/* 浮动窗口默认 alwaysontop */
+				c->alwaysontop = 1;
 				arrange(c->mon);
+			}
 			break;
 		case XA_WM_NORMAL_HINTS:
 			c->hintsvalid = 0;
@@ -2060,6 +2067,8 @@ setfullscreen(Client *c, int fullscreen)
 		c->oldbw = c->bw;
 		c->bw = 0;
 		c->isfloating = 1;
+		/* 浮动窗口默认 alwaysontop */
+		c->alwaysontop = 1;
 		resizeclient(c, c->mon->mx, c->mon->my, c->mon->mw, c->mon->mh);
 		XRaiseWindow(dpy, c->win);
 	} else if (!fullscreen && c->isfullscreen){
@@ -2067,6 +2076,8 @@ setfullscreen(Client *c, int fullscreen)
 			PropModeReplace, (unsigned char*)0, 0);
 		c->isfullscreen = 0;
 		c->isfloating = c->oldstate;
+		/* 浮动窗口默认 alwaysontop */
+		c->alwaysontop = c->isfloating ? 1 : 0;
 		c->bw = c->oldbw;
 		c->x = c->oldx;
 		c->y = c->oldy;
@@ -2389,6 +2400,8 @@ togglefloating(const Arg *arg)
 	if (selmon->sel->isfullscreen) /* no support for fullscreen windows */
 		return;
 	selmon->sel->isfloating = !selmon->sel->isfloating || selmon->sel->isfixed;
+	/* 浮动窗口默认 alwaysontop */
+	selmon->sel->alwaysontop = selmon->sel->isfloating ? 1 : 0;
 	if (selmon->sel->isfloating)
 		resize(selmon->sel, selmon->sel->x, selmon->sel->y,
 			selmon->sel->w, selmon->sel->h, 0);
@@ -2869,8 +2882,11 @@ updatewindowtype(Client *c)
 
 	if (state == netatom[NetWMFullscreen])
 		setfullscreen(c, 1);
-	if (wtype == netatom[NetWMWindowTypeDialog])
+	if (wtype == netatom[NetWMWindowTypeDialog]) {
 		c->isfloating = 1;
+		/* 浮动窗口默认 alwaysontop */
+		c->alwaysontop = 1;
+	}
 }
 
 void

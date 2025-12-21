@@ -55,35 +55,36 @@ static const Rule rules[] = {
 	 *	WM_CLASS(STRING) = instance, class
 	 *	WM_NAME(STRING) = title
 	 */
-	/* class                instance    title       tags mask     isfloating   alwaysontop monitor  height_percent  aspect_ratio  center */
+	/* class                instance    title       tags mask     isfloating monitor  height_percent  aspect_ratio  center */
 	/* height_percent: 0.0 = 使用默认值, >0.0 = 屏幕高度的百分比 (例如, 0.8 = 80%) */
 	/* aspect_ratio: 0.0 = 使用默认值, >0.0 = 宽高比 (例如, 16.0/9.0 = 1.777) */
 	/* center: 0 = 不居中, 1 = 居中浮动窗口 */
+	/* 注意: 浮动窗口默认 alwaysontop，无需在规则中指定 */
 	/* brave app YutubeMusic */
-	{ NULL,                                   "crx_cinhimbnkkaeohfgghhklpknlkffjgod", NULL,                       1 << 7, 0, 0, -1, 0.0, 0.0,      0 },
+	{ NULL,                                   "crx_cinhimbnkkaeohfgghhklpknlkffjgod", NULL,                       1 << 7, 0, -1, 0.0, 0.0,      0 },
 	/* brave app Youtube */
-	{ NULL,                                   "crx_agimnkijcaahngcdmfeangaknmldooml", NULL,                       1 << 7, 0, 0, -1, 0.0, 0.0,      0 },
-	{ "Virt-manager",                         NULL,                                   NULL,                       1 << 6, 0, 0, -1, 0.0, 0.0,      0 },
-	// { "Brave-browser",                        NULL,                                   NULL,                       1 << 0, 0, 0, -1, 0.0, 0.0,      0 },
-	{ "Cursor",                               NULL,                                   NULL,                       1 << 1, 0, 0, -1, 0.0, 0.0,      0 },
-	{ "FreeFileSync",                         NULL,                                   NULL,                       1 << 8, 0, 0, -1, 0.0, 0.0,      0 },
-	{ "Localsend",                            "localsend",                            NULL,                       1 << 8, 0, 0, -1, 0.0, 0.0,      0 },
-	{ "Rofi",                                 NULL,                                   NULL,                       0,      1, 1, -1, 0.0, 0.0,      1 },
-	{ "zenity",                               NULL,                                   NULL,                       0,      1, 1, -1, 0.0, 0.0,      1 },
-	{ "Bulky.py",                             "bulky.py",                             NULL,                       0,      1, 1, -1, 0.0, 0.0,      1 },
-	{ "mpv",                                  NULL,                                   NULL,                       0,      1, 1, -1, 0.0, 0.0, 	   1 },
-	{ "feh",                                  NULL,                                   NULL,                       0,      1, 1, -1, 0.0, 0.0,      1 },
-	{ "com.github.qarmin.czkawka",            NULL,                                   NULL,                       1 << 8, 0, 0, -1, 0.0, 0.0,      0 },
-	{ "Thunar",                               "thunar",                               "Confirm to replace files", 0,      1, 1, -1, 0.0, 0.0,      1 },
-	{ "Thunar",                               "thunar",                               "Rename",                   0,      1, 1, -1, 0.0, 0.0,      1 },
-	{ "Thunar",                               "thunar",                               "File Operation Progress",  0,      1, 1, -1, 0.0, 0.0,      1 },
-	{ "org.gnome.FileRoller",                 "org.gnome.FileRoller",                 NULL,                       0,      1, 1, -1, 0.0, 0.0,      1 },
-	{ "tdxcfv",                               "tdxw.fak",                             NULL,                       1 << 5, 0, 0, -1, 0.0, 0.0,      0 },
-	{ "Xfce4-appfinder",                      "xfce4-appfinder",                      NULL,                       0,      1, 1, -1, 0.4, 0.0,      1 },
-	{ "Io.github.celluloid_player.Celluloid", NULL,                                   NULL,                       0,      1, 1, -1, 0.0, 0.0,      1 },
-	{ "Xviewer",                              NULL,                                   NULL,                       0,      1, 1, -1, 0.0, 0.0,      1 },
-	{ "fr.handbrake.ghb",                     NULL,                                   NULL,                       1 << 4, 0, 0, -1, 0.0, 0.0,      0 },
-	{ "CherryStudio",                     	  NULL,                                   NULL,                       1 << 3, 0, 0, -1, 0.0, 0.0,      0 },
+	{ NULL,                                   "crx_agimnkijcaahngcdmfeangaknmldooml", NULL,                       1 << 7, 0, -1, 0.0, 0.0,      0 },
+	{ "Virt-manager",                         NULL,                                   NULL,                       1 << 6, 0, -1, 0.0, 0.0,      0 },
+	// { "Brave-browser",                        NULL,                                   NULL,                       1 << 0, 0, -1, 0.0, 0.0,      0 },
+	{ "Cursor",                               NULL,                                   NULL,                       1 << 1, 0, -1, 0.0, 0.0,      0 },
+	{ "FreeFileSync",                         NULL,                                   NULL,                       1 << 8, 0, -1, 0.0, 0.0,      0 },
+	{ "Localsend",                            "localsend",                            NULL,                       1 << 8, 0, -1, 0.0, 0.0,      0 },
+	{ "Rofi",                                 NULL,                                   NULL,                       0,      1, -1, 0.0, 0.0,      1 },
+	{ "zenity",                               NULL,                                   NULL,                       0,      1, -1, 0.0, 0.0,      1 },
+	{ "Bulky.py",                             "bulky.py",                             NULL,                       0,      1, -1, 0.0, 0.0,      1 },
+	{ "mpv",                                  NULL,                                   NULL,                       0,      1, -1, 0.0, 0.0, 	   1 },
+	{ "feh",                                  NULL,                                   NULL,                       0,      1, -1, 0.0, 0.0,      1 },
+	{ "com.github.qarmin.czkawka",            NULL,                                   NULL,                       1 << 8, 0, -1, 0.0, 0.0,      0 },
+	{ "Thunar",                               "thunar",                               "Confirm to replace files", 0,      1, -1, 0.0, 0.0,      1 },
+	{ "Thunar",                               "thunar",                               "Rename",                   0,      1, -1, 0.0, 0.0,      1 },
+	{ "Thunar",                               "thunar",                               "File Operation Progress",  0,      1, -1, 0.0, 0.0,      1 },
+	{ "org.gnome.FileRoller",                 "org.gnome.FileRoller",                 NULL,                       0,      1, -1, 0.0, 0.0,      1 },
+	{ "tdxcfv",                               "tdxw.fak",                             NULL,                       1 << 5, 0, -1, 0.0, 0.0,      0 },
+	{ "Xfce4-appfinder",                      "xfce4-appfinder",                      NULL,                       0,      1, -1, 0.4, 0.0,      1 },
+	{ "Io.github.celluloid_player.Celluloid", NULL,                                   NULL,                       0,      1, -1, 0.0, 0.0,      1 },
+	{ "Xviewer",                              NULL,                                   NULL,                       0,      1, -1, 0.0, 0.0,      1 },
+	{ "fr.handbrake.ghb",                     NULL,                                   NULL,                       1 << 4, 0, -1, 0.0, 0.0,      0 },
+	{ "CherryStudio",                     	  NULL,                                   NULL,                       1 << 3, 0, -1, 0.0, 0.0,      0 },
 
 };
 
