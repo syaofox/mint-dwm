@@ -85,6 +85,7 @@ static const Rule rules[] = {
 	{ "Xviewer",                              NULL,                                   NULL,                       0,      1, -1, 0.0, 0.0,      1 },
 	{ "fr.handbrake.ghb",                     NULL,                                   NULL,                       1 << 4, 0, -1, 0.0, 0.0,      0 },
 	{ "CherryStudio",                     	  NULL,                                   NULL,                       1 << 3, 0, -1, 0.0, 0.0,      0 },
+	{ "Motrix",                               NULL,                                   NULL,                       0,      1, -1, 0.0, 0.0,      1 },
 
 };
 
