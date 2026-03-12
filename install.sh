@@ -1,5 +1,61 @@
 #!/bin/bash
 
+set -euo pipefail
+
+DRY_RUN=false
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --dry-run)
+            DRY_RUN=true
+            shift
+            ;;
+        --help|-h)
+            echo "用法: $0 [选项] [操作]"
+            echo ""
+            echo "选项:"
+            echo "  --dry-run    仅显示将要执行的操作，不实际执行"
+            echo "  --help, -h   显示此帮助信息"
+            echo ""
+            echo "操作:"
+            echo "  themes   - 仅安装 GTK 主题"
+            echo "  icons    - 仅安装 GTK 图标主题"
+            echo "  links    - 仅检查并设置配置文件软链接"
+            exit 0
+            ;;
+        *)
+            break
+            ;;
+    esac
+done
+
+check_network() {
+    if ! curl -s --max-time 5 https://github.com > /dev/null 2>&1; then
+        log_error "无法连接到网络，请检查网络连接"
+        exit 1
+    fi
+}
+
+check_command() {
+    if ! command -v "$1" >/dev/null 2>&1; then
+        log_error "缺少必要命令: $1"
+        return 1
+    fi
+    return 0
+}
+
+run_apt() {
+    if [ "$DRY_RUN" = true ]; then
+        log_info "[DRY-RUN] sudo apt $*"
+        return 0
+    fi
+    if ! sudo apt "$@"; then
+        log_error "apt 命令执行失败: apt $*"
+        return 1
+    fi
+    return 0
+}
+
 # 颜色定义
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
@@ -36,13 +92,13 @@ install_gtk_themes() {
                 TMP_THEME_DIR="$(mktemp -d)"
                 if tar -xf "$THEME_ARCHIVE" -C "$TMP_THEME_DIR"; then
                     # 解压后可能包含一个或多个目录，这里全部移动到 ~/.themes
-                    find "$TMP_THEME_DIR" -mindepth 1 -maxdepth 1 -type d -print0 | while IFS= read -r -d '' dir; do
+                    while IFS= read -r -d '' dir; do
                         THEME_NAME="$(basename "$dir")"
                         # 覆盖已有同名目录
                         rm -rf "${THEME_TARGET_DIR:?}/$THEME_NAME"
                         mv "$dir" "$THEME_TARGET_DIR/"
                         log_success "GTK 主题已安装: $THEME_TARGET_DIR/$THEME_NAME"
-                    done
+                    done < <(find "$TMP_THEME_DIR" -mindepth 1 -maxdepth 1 -type d -print0)
                 else
                     log_error "解压 GTK 主题包失败: $BASENAME"
                 fi
@@ -72,13 +128,13 @@ install_gtk_icons() {
                 TMP_ICON_DIR="$(mktemp -d)"
                 if tar -xf "$ICON_ARCHIVE" -C "$TMP_ICON_DIR"; then
                     # 解压后可能包含一个或多个目录，这里全部移动到 ~/.icons
-                    find "$TMP_ICON_DIR" -mindepth 1 -maxdepth 1 -type d -print0 | while IFS= read -r -d '' dir; do
+                    while IFS= read -r -d '' dir; do
                         ICON_NAME="$(basename "$dir")"
                         # 覆盖已有同名目录
                         rm -rf "${ICON_TARGET_DIR:?}/$ICON_NAME"
                         mv "$dir" "$ICON_TARGET_DIR/"
                         log_success "GTK 图标主题已安装: $ICON_TARGET_DIR/$ICON_NAME"
-                    done
+                    done < <(find "$TMP_ICON_DIR" -mindepth 1 -maxdepth 1 -type d -print0)
                 else
                     log_error "解压 GTK 图标主题包失败: $BASENAME"
                 fi
@@ -95,23 +151,22 @@ install_gtk_icons() {
 setup_symlinks() {
     log_info "检查并设置配置文件软链接..."
     
-    # 定义软链接数组：目标路径:源路径:描述
-    declare -a SYMLINKS=(
-        "$HOME/.Xresources:$REPO_DIR/config/.Xresources:Xresources 配置"
-        "$HOME/.local/share/nemo/actions:$REPO_DIR/config/nemo/actions:Nemo 文件管理器动作"
-        "$HOME/.config/alacritty/alacritty.toml:$REPO_DIR/config/alacritty.toml:Alacritty 终端配置"
-        "$HOME/.config/dunst/dunstrc:$REPO_DIR/config/dunstrc:Dunst 通知配置"
-        "$HOME/.config/picom/picom.conf:$REPO_DIR/config/picom.conf:Picom 合成器配置"
-        "$HOME/.config/mpv/mpv.conf:$REPO_DIR/config/mpv.conf:MPV 播放器配置"
-        "$HOME/.config/rofi/config.rasi:$REPO_DIR/config/rofi-theme.rasi:Rofi 启动器配置"
-    )
-    
     local fixed_count=0
     local created_count=0
     local skipped_count=0
     
-    for symlink_def in "${SYMLINKS[@]}"; do
-        IFS=':' read -r target source desc <<< "$symlink_def"
+    local -a symlinks=(
+        "$HOME/.Xresources|$REPO_DIR/config/.Xresources|Xresources 配置"
+        "$HOME/.local/share/nemo/actions|$REPO_DIR/config/nemo/actions|Nemo 文件管理器动作"
+        "$HOME/.config/alacritty/alacritty.toml|$REPO_DIR/config/alacritty.toml|Alacritty 终端配置"
+        "$HOME/.config/dunst/dunstrc|$REPO_DIR/config/dunstrc|Dunst 通知配置"
+        "$HOME/.config/picom/picom.conf|$REPO_DIR/config/picom.conf|Picom 合成器配置"
+        "$HOME/.config/mpv/mpv.conf|$REPO_DIR/config/mpv.conf|MPV 播放器配置"
+        "$HOME/.config/rofi/config.rasi|$REPO_DIR/config/rofi-theme.rasi|Rofi 启动器配置"
+    )
+    
+    for symlink_def in "${symlinks[@]}"; do
+        IFS='|' read -r target source desc <<< "$symlink_def"
         
         # 检查源文件是否存在
         if [ ! -e "$source" ]; then
@@ -243,33 +298,60 @@ if [ -n "$ACTION" ]; then
     esac
 fi
 
+if [ "$DRY_RUN" = true ]; then
+    log_info "=== 运行在 DRY-RUN 模式，仅显示将要执行的操作 ==="
+    echo ""
+fi
+
 log_info "开始安装 Mint DWM 配置..."
 
 # 1. 更新并安装依赖
 log_info "正在更新系统并安装依赖..."
-sudo apt update
+run_apt update
 
 log_info "安装编译依赖..."
-sudo apt install -y build-essential python3-dev libx11-dev libxinerama-dev libxft-dev libxrandr-dev
+run_apt install -y build-essential python3-dev libx11-dev libxinerama-dev libxft-dev libxrandr-dev
 
 log_info "安装运行依赖..."
-sudo apt install -y dunst feh pasystray picom wireplumber xfce4-clipman xdotool maim xclip rofi ffmpeg imagemagick zenity x11-xserver-utils bulky catfish vim nemo lxappearance fcitx5 fcitx5-chinese-addons fcitx5-frontend-gtk3 fcitx5-frontend-gtk4 fcitx5-frontend-qt5 fcitx5-material-color
+run_apt install -y dunst feh pasystray picom wireplumber xfce4-clipman xdotool maim xclip rofi ffmpeg imagemagick zenity x11-xserver-utils bulky catfish vim nemo lxappearance fcitx5 fcitx5-chinese-addons fcitx5-frontend-gtk3 fcitx5-frontend-gtk4 fcitx5-frontend-qt5 fcitx5-material-color
 
 # 2. 安装字体
 log_info "安装 JetBrainsMono Nerd Font..."
 FONT_DIR="/usr/share/fonts/JetBrainsMono"
-if [ ! -d "$FONT_DIR" ]; then
-    mkdir -p /tmp/nerdfonts
-    cd /tmp/nerdfonts || exit
-    curl -L -o JetBrainsMono.tar.xz https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/JetBrainsMono.tar.xz
-    tar -xf JetBrainsMono.tar.xz
-    sudo mkdir -p "$FONT_DIR"
-    sudo cp ./*.ttf "$FONT_DIR/"
-    sudo fc-cache -f -v
-    rm -rf /tmp/nerdfonts
-    log_success "字体安装完成。"
+LOCAL_FONT_DIR="$REPO_DIR/fonts"
+
+if [ -d "$FONT_DIR" ]; then
+    log_info "系统字体目录已存在，跳过安装。"
 else
-    log_info "字体目录已存在，跳过安装。"
+    if [ -d "$LOCAL_FONT_DIR" ] && [ -n "$(ls -A "$LOCAL_FONT_DIR"/*.ttf 2>/dev/null)" ]; then
+        log_info "发现本地字体，使用本地字体..."
+        sudo mkdir -p "$FONT_DIR"
+        sudo cp "$LOCAL_FONT_DIR"/*.ttf "$FONT_DIR/"
+        sudo fc-cache -f -v
+        log_success "本地字体安装完成。"
+    else
+        log_info "未发现本地字体，尝试下载..."
+        check_network
+        mkdir -p /tmp/nerdfonts
+        cd /tmp/nerdfonts || exit
+        if ! curl -L -o JetBrainsMono.tar.xz https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/JetBrainsMono.tar.xz; then
+            log_error "字体下载失败，请检查网络连接"
+            rm -rf /tmp/nerdfonts
+            exit 1
+        fi
+        tar -xf JetBrainsMono.tar.xz
+        ttf_files=(./*.ttf)
+        if [ ${#ttf_files[@]} -eq 0 ] || [ ! -f "${ttf_files[0]}" ]; then
+            log_error "未找到任何 ttf 字体文件，下载可能失败"
+            rm -rf /tmp/nerdfonts
+            exit 1
+        fi
+        sudo mkdir -p "$FONT_DIR"
+        sudo cp ./*.ttf "$FONT_DIR/"
+        sudo fc-cache -f -v
+        rm -rf /tmp/nerdfonts
+        log_success "下载字体安装完成。"
+    fi
 fi
 
 # 3. 安装 GTK 主题（自动识别 gtk-themes 下所有压缩包）
@@ -288,7 +370,10 @@ compile_component() {
     local component=$1
     log_info "正在编译安装 $component..."
     cd "$REPO_DIR/suckless/$component" || exit
-    # 清理并编译安装
+    if [ "$DRY_RUN" = true ]; then
+        log_info "[DRY-RUN] sudo make clean install"
+        return 0
+    fi
     if sudo make clean install; then
         log_success "$component 安装成功。"
     else

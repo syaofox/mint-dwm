@@ -2,3 +2,4 @@ __pycache__
 .ruff_cache/
 config/Thunar/renamerrc
 backups/*.tar.gz
+fonts/
