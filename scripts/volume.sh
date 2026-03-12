@@ -25,13 +25,13 @@ up)
     # 解除静音并增加音量 (限制最大 150%)
     wpctl set-mute @DEFAULT_AUDIO_SINK@ 0
     wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 2%+
-    send_notification $1
+    send_notification "$1"
     ;;
 down)
     # 解除静音并减少音量
     wpctl set-mute @DEFAULT_AUDIO_SINK@ 0
     wpctl set-volume @DEFAULT_AUDIO_SINK@ 2%-
-    send_notification $1
+    send_notification "$1"
     ;;
 mute)
     # 切换静音

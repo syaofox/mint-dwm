@@ -48,7 +48,7 @@ if [ -n "$CURRENT_NAME" ] && [ -n "$CURRENT_EMAIL" ]; then
     print_info "当前配置："
     echo "  用户名: $CURRENT_NAME"
     echo "  邮箱: $CURRENT_EMAIL"
-    read -p "是否要更新？(y/N): " update_identity
+    read -r -p "是否要更新？(y/N): " update_identity
     if [[ ! "$update_identity" =~ ^[Yy]$ ]]; then
         print_info "跳过身份信息配置"
     else
@@ -64,8 +64,8 @@ if [ -z "$CURRENT_NAME" ] || [ -z "$CURRENT_EMAIL" ]; then
         USER_EMAIL="$2"
         print_info "使用命令行参数：$USER_NAME <$USER_EMAIL>"
     else
-        read -p "请输入您的姓名: " USER_NAME
-        read -p "请输入您的邮箱: " USER_EMAIL
+        read -r -p "请输入您的姓名: " USER_NAME
+        read -r -p "请输入您的邮箱: " USER_EMAIL
     fi
     
     if [ -z "$USER_NAME" ] || [ -z "$USER_EMAIL" ]; then
@@ -85,7 +85,7 @@ CURRENT_EDITOR=$(git config --global core.editor 2>/dev/null || echo "")
 
 if [ -n "$CURRENT_EDITOR" ]; then
     print_info "当前编辑器: $CURRENT_EDITOR"
-    read -p "是否要更改？(y/N): " change_editor
+    read -r -p "是否要更改？(y/N): " change_editor
     if [[ ! "$change_editor" =~ ^[Yy]$ ]]; then
         print_info "跳过编辑器配置"
     else
@@ -106,7 +106,7 @@ if [ -z "$CURRENT_EDITOR" ]; then
     fi
     
     print_info "检测到默认编辑器: $DEFAULT_EDITOR"
-    read -p "请输入要使用的编辑器 [$DEFAULT_EDITOR]: " USER_EDITOR
+    read -r -p "请输入要使用的编辑器 [$DEFAULT_EDITOR]: " USER_EDITOR
     USER_EDITOR=${USER_EDITOR:-$DEFAULT_EDITOR}
     
     git config --global core.editor "$USER_EDITOR"

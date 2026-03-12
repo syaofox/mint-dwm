@@ -39,7 +39,7 @@ install_gtk_themes() {
                     find "$TMP_THEME_DIR" -mindepth 1 -maxdepth 1 -type d -print0 | while IFS= read -r -d '' dir; do
                         THEME_NAME="$(basename "$dir")"
                         # 覆盖已有同名目录
-                        rm -rf "$THEME_TARGET_DIR/$THEME_NAME"
+                        rm -rf "${THEME_TARGET_DIR:?}/$THEME_NAME"
                         mv "$dir" "$THEME_TARGET_DIR/"
                         log_success "GTK 主题已安装: $THEME_TARGET_DIR/$THEME_NAME"
                     done
@@ -75,7 +75,7 @@ install_gtk_icons() {
                     find "$TMP_ICON_DIR" -mindepth 1 -maxdepth 1 -type d -print0 | while IFS= read -r -d '' dir; do
                         ICON_NAME="$(basename "$dir")"
                         # 覆盖已有同名目录
-                        rm -rf "$ICON_TARGET_DIR/$ICON_NAME"
+                        rm -rf "${ICON_TARGET_DIR:?}/$ICON_NAME"
                         mv "$dir" "$ICON_TARGET_DIR/"
                         log_success "GTK 图标主题已安装: $ICON_TARGET_DIR/$ICON_NAME"
                     done
@@ -121,7 +121,7 @@ setup_symlinks() {
         fi
         
         # 创建目标目录（如果需要）
-        local target_dir=$(dirname "$target")
+        target_dir=$(dirname "$target")
         if [ ! -d "$target_dir" ]; then
             mkdir -p "$target_dir"
         fi
@@ -130,8 +130,8 @@ setup_symlinks() {
         if [ -e "$target" ]; then
             # 如果是软链接，检查是否正确
             if [ -L "$target" ]; then
-                local current_target=$(readlink -f "$target")
-                local expected_target=$(readlink -f "$source")
+                current_target=$(readlink -f "$target")
+                expected_target=$(readlink -f "$source")
                 
                 if [ "$current_target" = "$expected_target" ]; then
                     log_info "✓ $desc: 软链接已正确设置"
@@ -150,7 +150,7 @@ setup_symlinks() {
                 fi
             else
                 # 如果是普通文件或目录，备份后创建软链接
-                local backup_path="${target}.backup.$(date +%Y%m%d_%H%M%S)"
+                backup_path="${target}.backup.$(date +%Y%m%d_%H%M%S)"
                 log_info "备份现有 $desc 到: $backup_path"
                 # 如果是目录，需要递归删除
                 if [ -d "$target" ]; then
@@ -260,11 +260,11 @@ log_info "安装 JetBrainsMono Nerd Font..."
 FONT_DIR="/usr/share/fonts/JetBrainsMono"
 if [ ! -d "$FONT_DIR" ]; then
     mkdir -p /tmp/nerdfonts
-    cd /tmp/nerdfonts
+    cd /tmp/nerdfonts || exit
     curl -L -o JetBrainsMono.tar.xz https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/JetBrainsMono.tar.xz
     tar -xf JetBrainsMono.tar.xz
     sudo mkdir -p "$FONT_DIR"
-    sudo cp *.ttf "$FONT_DIR/"
+    sudo cp ./*.ttf "$FONT_DIR/"
     sudo fc-cache -f -v
     rm -rf /tmp/nerdfonts
     log_success "字体安装完成。"
@@ -287,7 +287,7 @@ setup_symlinks
 compile_component() {
     local component=$1
     log_info "正在编译安装 $component..."
-    cd "$REPO_DIR/suckless/$component"
+    cd "$REPO_DIR/suckless/$component" || exit
     # 清理并编译安装
     if sudo make clean install; then
         log_success "$component 安装成功。"

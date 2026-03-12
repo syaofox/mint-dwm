@@ -73,8 +73,8 @@ list_backups() {
     # 优先查找压缩包备份（现在默认使用压缩包格式）
     for archive in "$BACKUP_BASE_DIR"/backup_*.tar.gz; do
         if [ -f "$archive" ]; then
-            local name=$(basename "$archive")
-            local date=$(stat -c %y "$archive" 2>/dev/null | cut -d' ' -f1,2 | cut -d'.' -f1)
+            name=$(basename "$archive")
+            date=$(stat -c %y "$archive" 2>/dev/null | cut -d' ' -f1,2 | cut -d'.' -f1)
             echo "  [$index] $name ($date)"
             backups+=("$archive")
             ((index++))
@@ -84,8 +84,8 @@ list_backups() {
     # 查找目录备份（兼容旧格式）
     for dir in "$BACKUP_BASE_DIR"/backup_*; do
         if [ -d "$dir" ] && [[ ! "$dir" == *.tar.gz ]]; then
-            local name=$(basename "$dir")
-            local date=$(stat -c %y "$dir" 2>/dev/null | cut -d' ' -f1,2 | cut -d'.' -f1)
+            name=$(basename "$dir")
+            date=$(stat -c %y "$dir" 2>/dev/null | cut -d' ' -f1,2 | cut -d'.' -f1)
             echo "  [$index] $name ($date) [目录]"
             backups+=("$dir")
             ((index++))
@@ -104,7 +104,7 @@ list_backups() {
     
     # 让用户选择备份
     while true; do
-        read -p "请选择要还原的备份编号 (1-$((index - 1))): " choice
+        read -r -p "请选择要还原的备份编号 (1-$((index - 1))): " choice
         if [[ "$choice" =~ ^[0-9]+$ ]] && [ "$choice" -ge 1 ] && [ "$choice" -le $((index - 1)) ]; then
             SELECTED_BACKUP="${backups[$((choice - 1))]}"
             break
@@ -132,7 +132,7 @@ extract_archive() {
         fi
         
         # 查找解压后的备份目录
-        local extracted_backup=$(find "$extract_dir" -maxdepth 1 -type d -name "backup_*" | head -n 1)
+        extracted_backup=$(find "$extract_dir" -maxdepth 1 -type d -name "backup_*" | head -n 1)
         if [ -n "$extracted_backup" ]; then
             SELECTED_BACKUP="$extracted_backup"
             echo -e "${GREEN}✓${NC} 解压完成"

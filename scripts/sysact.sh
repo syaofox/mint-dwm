@@ -35,7 +35,7 @@ case "$selected" in
         else
             # Fallback: 如果没有 xdotool，则使用 kill 发送 SIGTERM
             # -x 确保只杀 dwm 进程
-            pkill -u $USER -x dwm
+            pkill -u "$USER" -x dwm
         fi
         ;;
     "$lock")

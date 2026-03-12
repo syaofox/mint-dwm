@@ -11,20 +11,16 @@ fi
 select_partition() {
     local partition_type=$1
     local type_name=""
-    local filter_fstype=""
     
     case "$partition_type" in
         efi)
             type_name="EFI"
-            filter_fstype="vfat"
             ;;
         btrfs)
             type_name="Btrfs"
-            filter_fstype="btrfs"
             ;;
         swap)
             type_name="Swap"
-            filter_fstype="swap"
             ;;
         *)
             echo "Error: Invalid partition type: $partition_type"
@@ -41,11 +37,12 @@ select_partition() {
     
     # Get all block devices (partitions)
     while IFS= read -r line; do
-        local name=$(echo "$line" | awk '{print $1}')
-        local size=$(echo "$line" | awk '{print $2}')
-        local fstype=$(echo "$line" | awk '{print $3}')
-        local mountpoint=$(echo "$line" | awk '{print $4}')
-        local uuid=$(echo "$line" | awk '{print $5}')
+        local name size fstype mountpoint uuid
+        name=$(echo "$line" | awk '{print $1}')
+        size=$(echo "$line" | awk '{print $2}')
+        fstype=$(echo "$line" | awk '{print $3}')
+        mountpoint=$(echo "$line" | awk '{print $4}')
+        uuid=$(echo "$line" | awk '{print $5}')
         
         # Skip if name is empty
         [ -z "$name" ] && continue
@@ -88,11 +85,12 @@ select_partition() {
     if [ ${#candidates[@]} -eq 0 ]; then
         echo "未找到匹配的 $type_name 分区，显示所有可用分区：" >&2
         while IFS= read -r line; do
-            local name=$(echo "$line" | awk '{print $1}')
-            local size=$(echo "$line" | awk '{print $2}')
-            local fstype=$(echo "$line" | awk '{print $3}')
-            local mountpoint=$(echo "$line" | awk '{print $4}')
-            local uuid=$(echo "$line" | awk '{print $5}')
+            local name size fstype mountpoint uuid
+            name=$(echo "$line" | awk '{print $1}')
+            size=$(echo "$line" | awk '{print $2}')
+            fstype=$(echo "$line" | awk '{print $3}')
+            mountpoint=$(echo "$line" | awk '{print $4}')
+            uuid=$(echo "$line" | awk '{print $5}')
             
             [ -z "$name" ] && continue
             local device="/dev/$name"
@@ -125,7 +123,7 @@ select_partition() {
     
     echo "" >&2
     echo -n "请选择 $type_name 分区编号 (1-${#candidates[@]}): " >&2
-    read selection < /dev/tty
+    read -r selection < /dev/tty
     
     # Validate input
     if [ -z "$selection" ]; then
@@ -272,7 +270,7 @@ EOF
 findmnt --verify --fstab "$FSTAB" || { echo "Error: fstab verification failed."; exit 1; }
 
 # Unmount all
-cd ~
+cd ~ || exit
 umount -R /mnt
 
 # Enable swap
@@ -281,5 +279,6 @@ echo "Swap enabled successfully."
 
 echo "Configuration complete! Reboot now: sudo reboot"
 
+# 示例 fstab 条目（供参考）:
 # /dev/nvme1n1p2
-UUID=50e83160-79ba-44b0-869e-8d5e00d15d97	/         	btrfs     	rw,noatime,ssd,compress=zstd:3,ssd,discard=async,space_cache=v2,subvol=/@	0 0
+# UUID=50e83160-79ba-44b0-869e-8d5e00d15d97	/         	btrfs     	rw,noatime,ssd,compress=zstd:3,ssd,discard=async,space_cache=v2,subvol=/@	0 0

@@ -20,11 +20,11 @@ for p in "${items[@]}"; do
 done
 
 if [ "$has_dir" -eq 0 ] && [ "$count" -lt 2 ]; then
-    zenity --error --title="重复文件清理" --text="请至少选中一个文件夹，或者选中多个文件/文件夹后再运行“删除重复项”。" --width=360
+    zenity --error --title="重复文件清理" --text="请至少选中一个文件夹，或者选中多个文件/文件夹后再运行\"删除重复项\"。" --width=360
     exit 0
 fi
 
-# 将选中的路径展开成“要检查的文件列表”：
+# 将选中的路径展开成"要检查的文件列表"：
 # - 普通文件：直接加入
 # - 目录：递归 find 目录下的所有普通文件
 files_to_check=()
@@ -260,15 +260,13 @@ DUP_COUNT=$(wc -l < "$DUPLICATES_FILE")
 
 # 确认对话框
 # 使用 text-info 显示列表供用户最后确认
-zenity --text-info \
+if zenity --text-info \
     --title="确认删除重复项" \
     --text="检测到 $DUP_COUNT 个重复文件。\n\n点击 [确定] 将 PERMANENTLY DELETE (永久删除) 以下副本，只保留一份 originals：\n" \
     --filename="$DUPLICATES_FILE" \
     --width=600 --height=400 \
     --ok-label="确认删除" \
-    --cancel-label="取消"
-
-if [ $? -eq 0 ]; then
+    --cancel-label="取消"; then
     # 执行删除
     # 逐行读取并删除
     # 再次显示进度条

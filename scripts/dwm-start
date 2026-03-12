@@ -15,7 +15,7 @@ echo "--- dwm startup at $(date) ---"
 
 # 定义变量
 DUNSTRC_PATH="$HOME/.config/mint-dwm/config/dunstrc"
-PICOM_PATH="$HOME/.config/mint-dwm/config/picom.conf"
+# PICOM_PATH="$HOME/.config/mint-dwm/config/picom.conf"
 STATE_FILE="$HOME/.cache/current_wallpaper"
 WALL_DIR="$HOME/.config/mint-dwm/walls"
 

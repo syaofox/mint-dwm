@@ -33,10 +33,11 @@ backup_file() {
     local src="$1"
     local dest="$2"
     local desc="$3"
+    local link_target
     
     # 检查是否是软链接
     if [ -L "$src" ]; then
-        local link_target=$(readlink -f "$src")
+        link_target=$(readlink -f "$src")
         # 检查是否指向项目目录
         if [[ "$link_target" == "$PROJECT_ROOT"* ]]; then
             echo -e "${BLUE}⊘${NC} $desc (软链接指向项目目录，跳过)"
@@ -70,10 +71,11 @@ backup_dir() {
     local src="$1"
     local dest="$2"
     local desc="$3"
+    local link_target
     
     # 检查是否是软链接
     if [ -L "$src" ]; then
-        local link_target=$(readlink -f "$src")
+        link_target=$(readlink -f "$src")
         # 检查是否指向项目目录
         if [[ "$link_target" == "$PROJECT_ROOT"* ]]; then
             echo -e "${BLUE}⊘${NC} $desc (软链接指向项目目录，跳过)"
@@ -237,7 +239,7 @@ echo ""
 # 自动创建压缩包
 ARCHIVE_NAME="${BACKUP_BASE_DIR}/backup_${TIMESTAMP}.tar.gz"
 echo "正在创建压缩包..."
-cd "$BACKUP_BASE_DIR"
+cd "$BACKUP_BASE_DIR" || exit
 if tar -czf "$ARCHIVE_NAME" "backup_${TIMESTAMP}" 2>/dev/null; then
     ARCHIVE_SIZE=$(du -h "$ARCHIVE_NAME" | cut -f1)
     echo -e "${GREEN}✓${NC} 压缩包已创建: $ARCHIVE_NAME (${ARCHIVE_SIZE})"
