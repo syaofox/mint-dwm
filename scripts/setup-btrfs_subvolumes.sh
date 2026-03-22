@@ -1,17 +1,52 @@
 #!/bin/bash
 # configure_btrfs.sh - Configure Btrfs subvolumes (@, @home, @cache, @log, @docker, @tmp, @srv, @libvirt) for Linux Mint 22.2
 
-# Ensure running as root
-if [ "$EUID" -ne 0 ]; then
+# --- Dry-run support ---
+DRY_RUN=false
+
+usage() {
+    echo "Usage: $0 [--dry-run | -n]"
+    echo "  --dry-run, -n  Preview all operations without making changes"
+    exit 0
+}
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --dry-run|-n)
+            DRY_RUN=true; shift ;;
+        -h|--help)
+            usage ;;
+        *)
+            echo "Unknown option: $1"; usage ;;
+    esac
+done
+
+run() {
+    if $DRY_RUN; then
+        echo "[DRY-RUN] $*"
+    else
+        "$@"
+    fi
+}
+
+# Ensure running as root (skip check in dry-run mode)
+if ! $DRY_RUN && [ "$EUID" -ne 0 ]; then
     echo "Error: Please run as root (use sudo)."
     exit 1
+fi
+
+if $DRY_RUN; then
+    echo "========================================"
+    echo " DRY-RUN MODE - No changes will be made"
+    echo "========================================"
+    echo ""
 fi
 
 # Function to select partition from list
 select_partition() {
     local partition_type=$1
     local type_name=""
-    
+
     case "$partition_type" in
         efi)
             type_name="EFI"
@@ -27,14 +62,14 @@ select_partition() {
             exit 1
             ;;
     esac
-    
+
     echo "" >&2
     echo "=== 选择 $type_name 分区 ===" >&2
-    
+
     # Get all partitions and filter by type
     local -a candidates=()
     local -a devices=()
-    
+
     # Get all block devices (partitions)
     while IFS= read -r line; do
         local name size fstype mountpoint uuid
@@ -43,15 +78,15 @@ select_partition() {
         fstype=$(echo "$line" | awk '{print $3}')
         mountpoint=$(echo "$line" | awk '{print $4}')
         uuid=$(echo "$line" | awk '{print $5}')
-        
+
         # Skip if name is empty
         [ -z "$name" ] && continue
-        
+
         local device="/dev/$name"
-        
+
         # Verify it's a block device
         [ ! -b "$device" ] && continue
-        
+
         # Check if partition matches the filter
         local match=0
         case "$partition_type" in
@@ -74,13 +109,13 @@ select_partition() {
                 fi
                 ;;
         esac
-        
+
         if [ $match -eq 1 ]; then
             candidates+=("$device|$size|$fstype|$mountpoint|$uuid")
             devices+=("$device")
         fi
     done < <(lsblk -o NAME,SIZE,FSTYPE,MOUNTPOINT,UUID -n -l | grep -E '^[a-z]')
-    
+
     # If no candidates found, show all partitions
     if [ ${#candidates[@]} -eq 0 ]; then
         echo "未找到匹配的 $type_name 分区，显示所有可用分区：" >&2
@@ -91,26 +126,26 @@ select_partition() {
             fstype=$(echo "$line" | awk '{print $3}')
             mountpoint=$(echo "$line" | awk '{print $4}')
             uuid=$(echo "$line" | awk '{print $5}')
-            
+
             [ -z "$name" ] && continue
             local device="/dev/$name"
             [ ! -b "$device" ] && continue
-            
+
             candidates+=("$device|$size|$fstype|$mountpoint|$uuid")
             devices+=("$device")
         done < <(lsblk -o NAME,SIZE,FSTYPE,MOUNTPOINT,UUID -n -l | grep -E '^[a-z]')
     fi
-    
+
     if [ ${#candidates[@]} -eq 0 ]; then
         echo "错误: 未找到任何可用分区。" >&2
         exit 1
     fi
-    
+
     # Display formatted list
     echo "" >&2
     printf "%-4s %-20s %-12s %-12s %-40s %-20s\n" "编号" "设备" "大小" "文件系统" "UUID" "挂载点" >&2
     echo "------------------------------------------------------------------------------------------------------------------------" >&2
-    
+
     local index=1
     for candidate in "${candidates[@]}"; do
         IFS='|' read -r device size fstype mountpoint uuid <<< "$candidate"
@@ -120,36 +155,36 @@ select_partition() {
         printf "%-4s %-20s %-12s %-12s %-40s %-20s\n" "$index" "$device" "$size" "$fstype" "$uuid" "$mountpoint" >&2
         ((index++))
     done
-    
+
     echo "" >&2
     echo -n "请选择 $type_name 分区编号 (1-${#candidates[@]}): " >&2
     read -r selection < /dev/tty
-    
+
     # Validate input
     if [ -z "$selection" ]; then
         echo "错误: 未输入选择。" >&2
         exit 1
     fi
-    
+
     if ! [[ "$selection" =~ ^[0-9]+$ ]]; then
         echo "错误: 无效的输入，请输入数字。" >&2
         exit 1
     fi
-    
+
     if [ "$selection" -lt 1 ] || [ "$selection" -gt ${#candidates[@]} ]; then
         echo "错误: 选择超出范围 (1-${#candidates[@]})。" >&2
         exit 1
     fi
-    
+
     # Get selected device
     local selected_device="${devices[$((selection-1))]}"
-    
+
     # Final validation
     if [ ! -b "$selected_device" ]; then
         echo "错误: $selected_device 不是有效的块设备。" >&2
         exit 1
     fi
-    
+
     echo "已选择: $selected_device" >&2
     echo "$selected_device"
 }
@@ -187,36 +222,40 @@ if [ -z "$SWAP_UUID" ]; then
 fi
 echo "Swap UUID: $SWAP_UUID"
 
-# Unmount any existing mounts
-umount -R /mnt 2>/dev/null
-mkdir -p /mnt
+# --- [1/6] Unmount existing mounts and prepare ---
+echo ""
+echo "[1/6] 准备挂载环境..."
+run umount -R /mnt 2>/dev/null
+run mkdir -p /mnt
 
 # Mount Btrfs top-level
-mount "$BTRFS_DEV" /mnt || { echo "Error: Failed to mount $BTRFS_DEV."; exit 1; }
+run mount "$BTRFS_DEV" /mnt || { echo "Error: Failed to mount $BTRFS_DEV."; exit 1; }
 
-# Create subvolumes with dynamic check
+# --- [2/6] Create subvolumes ---
+echo "[2/6] 创建子卷..."
 SUBVOLS=(@home @log @cache @docker @tmp @srv @libvirt)
 for subvol in "${SUBVOLS[@]}"; do
     if btrfs subvolume list /mnt | grep -q "$subvol"; then
         echo "Subvolume $subvol already exists, skipping."
     else
-        btrfs subvolume create "/mnt/$subvol" || { echo "Error: Failed to create $subvol."; exit 1; }
+        run btrfs subvolume create "/mnt/$subvol" || { echo "Error: Failed to create $subvol."; exit 1; }
     fi
 done
 
 # Unmount top-level
-umount /mnt
+run umount /mnt
 
-# Mount @ subvolume and migrate data
-mount -o subvol=@ "$BTRFS_DEV" /mnt || { echo "Error: Failed to mount @ subvolume."; exit 1; }
-mkdir -p /mnt_log /mnt_cache /mnt_home /mnt_var_lib_docker /mnt_var_tmp /mnt_srv /mnt_var_lib_libvirt_images
-mount -o subvol=@log "$BTRFS_DEV" /mnt_log || { echo "Error: Failed to mount @log."; exit 1; }
-mount -o subvol=@cache "$BTRFS_DEV" /mnt_cache || { echo "Error: Failed to mount @cache."; exit 1; }
-mount -o subvol=@home "$BTRFS_DEV" /mnt_home || { echo "Error: Failed to mount @home."; exit 1; }
-mount -o subvol=@docker "$BTRFS_DEV" /mnt_var_lib_docker || { echo "Error: Failed to mount @docker."; exit 1; }
-mount -o subvol=@tmp "$BTRFS_DEV" /mnt_var_tmp || { echo "Error: Failed to mount @tmp."; exit 1; }
-mount -o subvol=@srv "$BTRFS_DEV" /mnt_srv || { echo "Error: Failed to mount @srv."; exit 1; }
-mount -o subvol=@libvirt "$BTRFS_DEV" /mnt_var_lib_libvirt_images || { echo "Error: Failed to mount @libvirt."; exit 1; }
+# --- [3/6] Mount subvolumes and migrate data ---
+echo "[3/6] 挂载子卷并迁移数据..."
+run mount -o subvol=@ "$BTRFS_DEV" /mnt || { echo "Error: Failed to mount @ subvolume."; exit 1; }
+run mkdir -p /mnt_log /mnt_cache /mnt_home /mnt_var_lib_docker /mnt_var_tmp /mnt_srv /mnt_var_lib_libvirt_images
+run mount -o subvol=@log "$BTRFS_DEV" /mnt_log || { echo "Error: Failed to mount @log."; exit 1; }
+run mount -o subvol=@cache "$BTRFS_DEV" /mnt_cache || { echo "Error: Failed to mount @cache."; exit 1; }
+run mount -o subvol=@home "$BTRFS_DEV" /mnt_home || { echo "Error: Failed to mount @home."; exit 1; }
+run mount -o subvol=@docker "$BTRFS_DEV" /mnt_var_lib_docker || { echo "Error: Failed to mount @docker."; exit 1; }
+run mount -o subvol=@tmp "$BTRFS_DEV" /mnt_var_tmp || { echo "Error: Failed to mount @tmp."; exit 1; }
+run mount -o subvol=@srv "$BTRFS_DEV" /mnt_srv || { echo "Error: Failed to mount @srv."; exit 1; }
+run mount -o subvol=@libvirt "$BTRFS_DEV" /mnt_var_lib_libvirt_images || { echo "Error: Failed to mount @libvirt."; exit 1; }
 
 # Migrate data from existing directories to subvolumes
 # Format: "source_path|destination_mount_point|display_name"
@@ -233,29 +272,30 @@ MIGRATE_DIRS=(
 for migrate_info in "${MIGRATE_DIRS[@]}"; do
     IFS='|' read -r src dst name <<< "$migrate_info"
     if [ -d "$src" ] && [ "$(ls -A "$src")" ]; then
-        mv "$src"/* "$dst"/ || { echo "Error: Failed to migrate $name."; exit 1; }
-        rmdir "$src"
+        run mv "$src"/* "$dst"/ || { echo "Error: Failed to migrate $name."; exit 1; }
+        run rmdir "$src"
     fi
 done
 
 # Unmount temporary mounts
-umount /mnt_log /mnt_cache /mnt_home /mnt_var_lib_docker /mnt_var_tmp /mnt_srv /mnt_var_lib_libvirt_images
-rm -rf /mnt_log /mnt_cache /mnt_home /mnt_var_lib_docker /mnt_var_tmp /mnt_srv /mnt_var_lib_libvirt_images
+run umount /mnt_log /mnt_cache /mnt_home /mnt_var_lib_docker /mnt_var_tmp /mnt_srv /mnt_var_lib_libvirt_images
+run rm -rf /mnt_log /mnt_cache /mnt_home /mnt_var_lib_docker /mnt_var_tmp /mnt_srv /mnt_var_lib_libvirt_images
 
-# Create permanent mount points and mount subvolumes
-mkdir -p /mnt/{var/log,var/cache,var/lib/docker,var/tmp,var/lib/libvirt/images,srv,home}
-mount -o subvol=@home "$BTRFS_DEV" /mnt/home || { echo "Error: Failed to mount @home."; exit 1; }
-mount -o subvol=@log "$BTRFS_DEV" /mnt/var/log || { echo "Error: Failed to mount @log."; exit 1; }
-mount -o subvol=@cache "$BTRFS_DEV" /mnt/var/cache || { echo "Error: Failed to mount @cache."; exit 1; }
-mount -o subvol=@docker,nodatacow "$BTRFS_DEV" /mnt/var/lib/docker || { echo "Error: Failed to mount @docker."; exit 1; }
-mount -o subvol=@tmp "$BTRFS_DEV" /mnt/var/tmp || { echo "Error: Failed to mount @tmp."; exit 1; }
-mount -o subvol=@srv "$BTRFS_DEV" /mnt/srv || { echo "Error: Failed to mount @srv."; exit 1; }
-mount -o subvol=@libvirt,nodatacow "$BTRFS_DEV" /mnt/var/lib/libvirt/images || { echo "Error: Failed to mount @libvirt."; exit 1; }
+# --- [4/6] Setup permanent mounts ---
+echo "[4/6] 设置永久挂载..."
+run mkdir -p /mnt/{var/log,var/cache,var/lib/docker,var/tmp,var/lib/libvirt/images,srv,home}
+run mount -o subvol=@home "$BTRFS_DEV" /mnt/home || { echo "Error: Failed to mount @home."; exit 1; }
+run mount -o subvol=@log "$BTRFS_DEV" /mnt/var/log || { echo "Error: Failed to mount @log."; exit 1; }
+run mount -o subvol=@cache "$BTRFS_DEV" /mnt/var/cache || { echo "Error: Failed to mount @cache."; exit 1; }
+run mount -o subvol=@docker,nodatacow "$BTRFS_DEV" /mnt/var/lib/docker || { echo "Error: Failed to mount @docker."; exit 1; }
+run mount -o subvol=@tmp "$BTRFS_DEV" /mnt/var/tmp || { echo "Error: Failed to mount @tmp."; exit 1; }
+run mount -o subvol=@srv "$BTRFS_DEV" /mnt/srv || { echo "Error: Failed to mount @srv."; exit 1; }
+run mount -o subvol=@libvirt,nodatacow "$BTRFS_DEV" /mnt/var/lib/libvirt/images || { echo "Error: Failed to mount @libvirt."; exit 1; }
 
-# Update fstab
-FSTAB=/mnt/etc/fstab
-cat > "$FSTAB" << EOF
-# /boot/efi
+# --- [5/6] Generate fstab ---
+echo "[5/6] 生成 fstab..."
+
+FSTAB_CONTENT="# /boot/efi
 UUID=$EFI_UUID  /boot/efi       vfat    umask=0077      0 1
 
 # / (Root Subvolume)
@@ -275,30 +315,36 @@ UUID=$BTRFS_UUID /srv            btrfs   subvol=@srv,noatime,ssd,compress=zstd:3
 # /var/lib/libvirt/images (KVM)
 UUID=$BTRFS_UUID /var/lib/libvirt/images btrfs subvol=@libvirt,noatime,ssd,discard=async,space_cache=v2,nodatacow,compress=no 0 0
 # swap
-UUID=$SWAP_UUID  none            swap    sw              0 0
+UUID=$SWAP_UUID  none            swap    sw              0 0"
 
-# ssd
-# UUID=cb6285a3-5e94-4376-a9fc-38b10c28d40e /mnt/github btrfs rw,noatime,ssd,compress=zstd:3,discard=async,space_cache=v2,subvol=/@github 0 0
-# UUID=cb6285a3-5e94-4376-a9fc-38b10c28d40e /mnt/data btrfs rw,noatime,ssd,compress=zstd:3,discard=async,space_cache=v2,subvol=/@data 0 0
-
-# dnas
-# 10.10.10.2:/fs/1000/nfs /mnt/dnas nfs defaults,_netdev,soft,timeo=50,retrans=3,proto=tcp,vers=4,rsize=1048576,wsize=1048576 0 0
-
-EOF
+if $DRY_RUN; then
+    echo ""
+    echo "[DRY-RUN] Would write to /mnt/etc/fstab:"
+    echo "----------------------------------------"
+    echo "$FSTAB_CONTENT"
+    echo "----------------------------------------"
+else
+    echo "$FSTAB_CONTENT" > /mnt/etc/fstab
+fi
 
 # Verify fstab
-findmnt --verify --fstab "$FSTAB" || { echo "Error: fstab verification failed."; exit 1; }
+if ! $DRY_RUN; then
+    findmnt --verify --fstab /mnt/etc/fstab || { echo "Error: fstab verification failed."; exit 1; }
+fi
 
-# Unmount all
-cd ~ || exit
-umount -R /mnt
+# --- [6/6] Cleanup ---
+echo "[6/6] 清理..."
+run umount -R /mnt
+run swapon "$SWAP_DEV" || { echo "Error: Failed to enable swap on $SWAP_DEV."; exit 1; }
 
-# Enable swap
-swapon "$SWAP_DEV" || { echo "Error: Failed to enable swap on $SWAP_DEV."; exit 1; }
-echo "Swap enabled successfully."
-
-echo "Configuration complete! Reboot now: sudo reboot"
-
-# 示例 fstab 条目（供参考）:
-# /dev/nvme1n1p2
-# UUID=50e83160-79ba-44b0-869e-8d5e00d15d97	/         	btrfs     	rw,noatime,ssd,compress=zstd:3,ssd,discard=async,space_cache=v2,subvol=/@	0 0
+# --- Done ---
+echo ""
+if $DRY_RUN; then
+    echo "========================================"
+    echo " Dry-run complete. Review above output."
+    echo " Run without --dry-run to apply changes."
+    echo "========================================"
+else
+    echo "Swap enabled successfully."
+    echo "Configuration complete! Reboot now: sudo reboot"
+fi
