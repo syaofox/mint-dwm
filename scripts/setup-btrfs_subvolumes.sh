@@ -1,5 +1,5 @@
 #!/bin/bash
-# configure_btrfs.sh - Configure Btrfs subvolumes (@, @home, @cache, @log) for Linux Mint 22.2
+# configure_btrfs.sh - Configure Btrfs subvolumes (@, @home, @cache, @log, @docker, @tmp, @srv, @libvirt) for Linux Mint 22.2
 
 # Ensure running as root
 if [ "$EUID" -ne 0 ]; then
@@ -195,7 +195,7 @@ mkdir -p /mnt
 mount "$BTRFS_DEV" /mnt || { echo "Error: Failed to mount $BTRFS_DEV."; exit 1; }
 
 # Create subvolumes with dynamic check
-SUBVOLS=(@home @log @cache)
+SUBVOLS=(@home @log @cache @docker @tmp @srv @libvirt)
 for subvol in "${SUBVOLS[@]}"; do
     if btrfs subvolume list /mnt | grep -q "$subvol"; then
         echo "Subvolume $subvol already exists, skipping."
@@ -209,10 +209,14 @@ umount /mnt
 
 # Mount @ subvolume and migrate data
 mount -o subvol=@ "$BTRFS_DEV" /mnt || { echo "Error: Failed to mount @ subvolume."; exit 1; }
-mkdir -p /mnt_log /mnt_cache /mnt_home
+mkdir -p /mnt_log /mnt_cache /mnt_home /mnt_var_lib_docker /mnt_var_tmp /mnt_srv /mnt_var_lib_libvirt_images
 mount -o subvol=@log "$BTRFS_DEV" /mnt_log || { echo "Error: Failed to mount @log."; exit 1; }
 mount -o subvol=@cache "$BTRFS_DEV" /mnt_cache || { echo "Error: Failed to mount @cache."; exit 1; }
 mount -o subvol=@home "$BTRFS_DEV" /mnt_home || { echo "Error: Failed to mount @home."; exit 1; }
+mount -o subvol=@docker "$BTRFS_DEV" /mnt_var_lib_docker || { echo "Error: Failed to mount @docker."; exit 1; }
+mount -o subvol=@tmp "$BTRFS_DEV" /mnt_var_tmp || { echo "Error: Failed to mount @tmp."; exit 1; }
+mount -o subvol=@srv "$BTRFS_DEV" /mnt_srv || { echo "Error: Failed to mount @srv."; exit 1; }
+mount -o subvol=@libvirt "$BTRFS_DEV" /mnt_var_lib_libvirt_images || { echo "Error: Failed to mount @libvirt."; exit 1; }
 
 # Migrate data from existing directories to subvolumes
 # Format: "source_path|destination_mount_point|display_name"
@@ -220,6 +224,10 @@ MIGRATE_DIRS=(
     "/mnt/var/log|/mnt_log|/var/log"
     "/mnt/var/cache|/mnt_cache|/var/cache"
     "/mnt/home|/mnt_home|/home"
+    "/mnt/var/lib/docker|/mnt_var_lib_docker|/var/lib/docker"
+    "/mnt/var/tmp|/mnt_var_tmp|/var/tmp"
+    "/mnt/srv|/mnt_srv|/srv"
+    "/mnt/var/lib/libvirt/images|/mnt_var_lib_libvirt_images|/var/lib/libvirt/images"
 )
 
 for migrate_info in "${MIGRATE_DIRS[@]}"; do
@@ -231,14 +239,18 @@ for migrate_info in "${MIGRATE_DIRS[@]}"; do
 done
 
 # Unmount temporary mounts
-umount /mnt_log /mnt_cache /mnt_home
-rm -rf /mnt_log /mnt_cache /mnt_home
+umount /mnt_log /mnt_cache /mnt_home /mnt_var_lib_docker /mnt_var_tmp /mnt_srv /mnt_var_lib_libvirt_images
+rm -rf /mnt_log /mnt_cache /mnt_home /mnt_var_lib_docker /mnt_var_tmp /mnt_srv /mnt_var_lib_libvirt_images
 
 # Create permanent mount points and mount subvolumes
-mkdir -p /mnt/{var/log,var/cache,home}
+mkdir -p /mnt/{var/log,var/cache,var/lib/docker,var/tmp,var/lib/libvirt/images,srv,home}
 mount -o subvol=@home "$BTRFS_DEV" /mnt/home || { echo "Error: Failed to mount @home."; exit 1; }
 mount -o subvol=@log "$BTRFS_DEV" /mnt/var/log || { echo "Error: Failed to mount @log."; exit 1; }
 mount -o subvol=@cache "$BTRFS_DEV" /mnt/var/cache || { echo "Error: Failed to mount @cache."; exit 1; }
+mount -o subvol=@docker,nodatacow "$BTRFS_DEV" /mnt/var/lib/docker || { echo "Error: Failed to mount @docker."; exit 1; }
+mount -o subvol=@tmp "$BTRFS_DEV" /mnt/var/tmp || { echo "Error: Failed to mount @tmp."; exit 1; }
+mount -o subvol=@srv "$BTRFS_DEV" /mnt/srv || { echo "Error: Failed to mount @srv."; exit 1; }
+mount -o subvol=@libvirt,nodatacow "$BTRFS_DEV" /mnt/var/lib/libvirt/images || { echo "Error: Failed to mount @libvirt."; exit 1; }
 
 # Update fstab
 FSTAB=/mnt/etc/fstab
@@ -254,6 +266,14 @@ UUID=$BTRFS_UUID /home           btrfs   subvol=@home,noatime,ssd,compress=zstd:
 UUID=$BTRFS_UUID /var/log        btrfs   subvol=@log,noatime,ssd,compress=zstd:3,discard=async,space_cache=v2 0 0
 # /var/cache
 UUID=$BTRFS_UUID /var/cache      btrfs   subvol=@cache,noatime,ssd,compress=zstd:3,discard=async,space_cache=v2 0 0
+# /var/lib/docker
+UUID=$BTRFS_UUID /var/lib/docker btrfs   subvol=@docker,noatime,ssd,discard=async,space_cache=v2,nodatacow 0 0
+# /var/tmp
+UUID=$BTRFS_UUID /var/tmp        btrfs   subvol=@tmp,noatime,ssd,compress=zstd:3,discard=async,space_cache=v2 0 0
+# /srv
+UUID=$BTRFS_UUID /srv            btrfs   subvol=@srv,noatime,ssd,compress=zstd:3,discard=async,space_cache=v2 0 0
+# /var/lib/libvirt/images (KVM)
+UUID=$BTRFS_UUID /var/lib/libvirt/images btrfs subvol=@libvirt,noatime,ssd,discard=async,space_cache=v2,nodatacow,compress=no 0 0
 # swap
 UUID=$SWAP_UUID  none            swap    sw              0 0
 
