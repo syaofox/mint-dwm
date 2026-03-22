@@ -42,6 +42,26 @@ if $DRY_RUN; then
     echo ""
 fi
 
+# Detect if device is SSD or HDD
+detect_disk_type() {
+    local device=$1
+    local disk=$(lsblk -no PKNAME "$device" | head -1)
+    if [ -z "$disk" ]; then
+        echo "ssd"
+        return
+    fi
+    local rotational="/sys/block/$disk/queue/rotational"
+    if [ -f "$rotational" ]; then
+        if [ "$(cat "$rotational")" = "0" ]; then
+            echo "ssd"
+        else
+            echo "hdd"
+        fi
+    else
+        echo "ssd"
+    fi
+}
+
 # Function to select partition from list
 select_partition() {
     local partition_type=$1
@@ -66,74 +86,47 @@ select_partition() {
     echo "" >&2
     echo "=== 选择 $type_name 分区 ===" >&2
 
-    # Get all partitions and filter by type
     local -a candidates=()
     local -a devices=()
 
-    # Get all block devices (partitions)
-    while IFS= read -r line; do
-        local name size fstype mountpoint uuid
-        name=$(echo "$line" | awk '{print $1}')
-        size=$(echo "$line" | awk '{print $2}')
-        fstype=$(echo "$line" | awk '{print $3}')
-        mountpoint=$(echo "$line" | awk '{print $4}')
-        uuid=$(echo "$line" | awk '{print $5}')
-
-        # Skip if name is empty
-        [ -z "$name" ] && continue
-
-        local device="/dev/$name"
-
-        # Verify it's a block device
+    # Get all partitions: lsblk -p gives full paths, IFS separates fields cleanly
+    while IFS= read -r device size fstype mp uuid; do
+        [ -z "$device" ] && continue
         [ ! -b "$device" ] && continue
 
-        # Check if partition matches the filter
         local match=0
         case "$partition_type" in
             efi)
-                # EFI: vfat or fat32
                 if [[ "$fstype" == "vfat" ]] || [[ "$fstype" == "fat32" ]]; then
                     match=1
                 fi
                 ;;
             btrfs)
-                # Btrfs: btrfs filesystem
                 if [[ "$fstype" == "btrfs" ]]; then
                     match=1
                 fi
                 ;;
             swap)
-                # Swap: swap type or any block device (could be unformatted)
-                if [[ "$fstype" == "swap" ]] || [[ -z "$fstype" ]]; then
+                if [[ "$fstype" == "swap" ]] || [[ "$fstype" == "linux-swap" ]]; then
                     match=1
                 fi
                 ;;
         esac
 
         if [ $match -eq 1 ]; then
-            candidates+=("$device|$size|$fstype|$mountpoint|$uuid")
+            candidates+=("$device|$size|$fstype|$mp|$uuid")
             devices+=("$device")
         fi
-    done < <(lsblk -o NAME,SIZE,FSTYPE,MOUNTPOINT,UUID -n -l | grep -E '^[a-z]')
+    done < <(lsblk -o NAME,SIZE,FSTYPE,MOUNTPOINT,UUID -n -p -l | grep -E '^/dev/')
 
-    # If no candidates found, show all partitions
     if [ ${#candidates[@]} -eq 0 ]; then
         echo "未找到匹配的 $type_name 分区，显示所有可用分区：" >&2
-        while IFS= read -r line; do
-            local name size fstype mountpoint uuid
-            name=$(echo "$line" | awk '{print $1}')
-            size=$(echo "$line" | awk '{print $2}')
-            fstype=$(echo "$line" | awk '{print $3}')
-            mountpoint=$(echo "$line" | awk '{print $4}')
-            uuid=$(echo "$line" | awk '{print $5}')
-
-            [ -z "$name" ] && continue
-            local device="/dev/$name"
+        while IFS= read -r device size fstype mp uuid; do
+            [ -z "$device" ] && continue
             [ ! -b "$device" ] && continue
-
-            candidates+=("$device|$size|$fstype|$mountpoint|$uuid")
+            candidates+=("$device|$size|$fstype|$mp|$uuid")
             devices+=("$device")
-        done < <(lsblk -o NAME,SIZE,FSTYPE,MOUNTPOINT,UUID -n -l | grep -E '^[a-z]')
+        done < <(lsblk -o NAME,SIZE,FSTYPE,MOUNTPOINT,UUID -n -p -l | grep -E '^/dev/')
     fi
 
     if [ ${#candidates[@]} -eq 0 ]; then
@@ -222,6 +215,17 @@ if [ -z "$SWAP_UUID" ]; then
 fi
 echo "Swap UUID: $SWAP_UUID"
 
+# Detect disk type for mount options
+DISK_TYPE=$(detect_disk_type "$BTRFS_DEV")
+echo "Detected disk type: $DISK_TYPE"
+if [ "$DISK_TYPE" = "ssd" ]; then
+    MOUNT_OPTS="noatime,ssd,compress=zstd:3,discard=async,space_cache=v2"
+    MOUNT_OPTS_NOCOW="noatime,ssd,discard=async,space_cache=v2"
+else
+    MOUNT_OPTS="noatime,compress=zstd:3,autodefrag,space_cache=v2"
+    MOUNT_OPTS_NOCOW="noatime,space_cache=v2"
+fi
+
 # --- [1/6] Unmount existing mounts and prepare ---
 echo ""
 echo "[1/6] 准备挂载环境..."
@@ -231,11 +235,17 @@ run mkdir -p /mnt
 # Mount Btrfs top-level
 run mount "$BTRFS_DEV" /mnt || { echo "Error: Failed to mount $BTRFS_DEV."; exit 1; }
 
+# Verify root subvolume @ exists
+if ! btrfs subvolume list /mnt | grep -qP '\t@$'; then
+    echo "Error: Root subvolume @ not found. Please create it first with: btrfs subvolume create /mnt/@"
+    exit 1
+fi
+
 # --- [2/6] Create subvolumes ---
 echo "[2/6] 创建子卷..."
 SUBVOLS=(@home @log @cache @docker @tmp @srv @libvirt)
 for subvol in "${SUBVOLS[@]}"; do
-    if btrfs subvolume list /mnt | grep -q "$subvol"; then
+    if btrfs subvolume list /mnt | grep -qP "\t${subvol}$"; then
         echo "Subvolume $subvol already exists, skipping."
     else
         run btrfs subvolume create "/mnt/$subvol" || { echo "Error: Failed to create $subvol."; exit 1; }
@@ -272,8 +282,8 @@ MIGRATE_DIRS=(
 for migrate_info in "${MIGRATE_DIRS[@]}"; do
     IFS='|' read -r src dst name <<< "$migrate_info"
     if [ -d "$src" ] && [ "$(ls -A "$src")" ]; then
-        run mv "$src"/* "$dst"/ || { echo "Error: Failed to migrate $name."; exit 1; }
-        run rmdir "$src"
+        run cp -a "$src"/. "$dst"/ || { echo "Error: Failed to migrate $name."; exit 1; }
+        run rm -rf "$src"
     fi
 done
 
@@ -287,10 +297,12 @@ run mkdir -p /mnt/{var/log,var/cache,var/lib/docker,var/tmp,var/lib/libvirt/imag
 run mount -o subvol=@home "$BTRFS_DEV" /mnt/home || { echo "Error: Failed to mount @home."; exit 1; }
 run mount -o subvol=@log "$BTRFS_DEV" /mnt/var/log || { echo "Error: Failed to mount @log."; exit 1; }
 run mount -o subvol=@cache "$BTRFS_DEV" /mnt/var/cache || { echo "Error: Failed to mount @cache."; exit 1; }
-run mount -o subvol=@docker,nodatacow "$BTRFS_DEV" /mnt/var/lib/docker || { echo "Error: Failed to mount @docker."; exit 1; }
+run mount -o subvol=@docker "$BTRFS_DEV" /mnt/var/lib/docker || { echo "Error: Failed to mount @docker."; exit 1; }
+run chattr +C /mnt/var/lib/docker || { echo "Error: Failed to set nodatacow on /var/lib/docker."; exit 1; }
 run mount -o subvol=@tmp "$BTRFS_DEV" /mnt/var/tmp || { echo "Error: Failed to mount @tmp."; exit 1; }
 run mount -o subvol=@srv "$BTRFS_DEV" /mnt/srv || { echo "Error: Failed to mount @srv."; exit 1; }
-run mount -o subvol=@libvirt,nodatacow "$BTRFS_DEV" /mnt/var/lib/libvirt/images || { echo "Error: Failed to mount @libvirt."; exit 1; }
+run mount -o subvol=@libvirt "$BTRFS_DEV" /mnt/var/lib/libvirt/images || { echo "Error: Failed to mount @libvirt."; exit 1; }
+run chattr +C /mnt/var/lib/libvirt/images || { echo "Error: Failed to set nodatacow on /var/lib/libvirt/images."; exit 1; }
 
 # --- [5/6] Generate fstab ---
 echo "[5/6] 生成 fstab..."
@@ -299,23 +311,30 @@ FSTAB_CONTENT="# /boot/efi
 UUID=$EFI_UUID  /boot/efi       vfat    umask=0077      0 1
 
 # / (Root Subvolume)
-UUID=$BTRFS_UUID /               btrfs   subvol=@,noatime,ssd,compress=zstd:3,discard=async,space_cache=v2 0 0
+UUID=$BTRFS_UUID /               btrfs   subvol=@,${MOUNT_OPTS} 0 0
 # /home
-UUID=$BTRFS_UUID /home           btrfs   subvol=@home,noatime,ssd,compress=zstd:3,discard=async,space_cache=v2 0 0
+UUID=$BTRFS_UUID /home           btrfs   subvol=@home,${MOUNT_OPTS} 0 0
 # /var/log
-UUID=$BTRFS_UUID /var/log        btrfs   subvol=@log,noatime,ssd,compress=zstd:3,discard=async,space_cache=v2 0 0
+UUID=$BTRFS_UUID /var/log        btrfs   subvol=@log,${MOUNT_OPTS} 0 0
 # /var/cache
-UUID=$BTRFS_UUID /var/cache      btrfs   subvol=@cache,noatime,ssd,compress=zstd:3,discard=async,space_cache=v2 0 0
-# /var/lib/docker
-UUID=$BTRFS_UUID /var/lib/docker btrfs   subvol=@docker,noatime,ssd,discard=async,space_cache=v2,nodatacow 0 0
+UUID=$BTRFS_UUID /var/cache      btrfs   subvol=@cache,${MOUNT_OPTS} 0 0
+# /var/lib/docker (nodatacow via chattr +C)
+UUID=$BTRFS_UUID /var/lib/docker btrfs   subvol=@docker,${MOUNT_OPTS_NOCOW} 0 0
 # /var/tmp
-UUID=$BTRFS_UUID /var/tmp        btrfs   subvol=@tmp,noatime,ssd,compress=zstd:3,discard=async,space_cache=v2 0 0
+UUID=$BTRFS_UUID /var/tmp        btrfs   subvol=@tmp,${MOUNT_OPTS} 0 0
 # /srv
-UUID=$BTRFS_UUID /srv            btrfs   subvol=@srv,noatime,ssd,compress=zstd:3,discard=async,space_cache=v2 0 0
-# /var/lib/libvirt/images (KVM)
-UUID=$BTRFS_UUID /var/lib/libvirt/images btrfs subvol=@libvirt,noatime,ssd,discard=async,space_cache=v2,nodatacow,compress=no 0 0
+UUID=$BTRFS_UUID /srv            btrfs   subvol=@srv,${MOUNT_OPTS} 0 0
+# /var/lib/libvirt/images (nodatacow via chattr +C)
+UUID=$BTRFS_UUID /var/lib/libvirt/images btrfs subvol=@libvirt,${MOUNT_OPTS_NOCOW} 0 0
 # swap
-UUID=$SWAP_UUID  none            swap    sw              0 0"
+UUID=$SWAP_UUID  none            swap    sw              0 0
+
+# --- Manual entries (ssd) ---
+# UUID=cb6285a3-5e94-4376-a9fc-38b10c28d40e /mnt/github btrfs rw,noatime,ssd,compress=zstd:3,discard=async,space_cache=v2,subvol=/@github 0 0
+# UUID=cb6285a3-5e94-4376-a9fc-38b10c28d40e /mnt/data btrfs rw,noatime,ssd,compress=zstd:3,discard=async,space_cache=v2,subvol=/@data 0 0
+
+# --- Manual entries (dnas) ---
+# 10.10.10.2:/fs/1000/nfs /mnt/dnas nfs defaults,_netdev,soft,timeo=50,retrans=6,proto=tcp,vers=4,rsize=262144,wsize=262144 0 0"
 
 if $DRY_RUN; then
     echo ""
@@ -329,7 +348,7 @@ fi
 
 # Verify fstab
 if ! $DRY_RUN; then
-    findmnt --verify --fstab /mnt/etc/fstab || { echo "Error: fstab verification failed."; exit 1; }
+    findmnt --verify --tab-file /mnt/etc/fstab || { echo "Error: fstab verification failed."; exit 1; }
 fi
 
 # --- [6/6] Cleanup ---
