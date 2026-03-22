@@ -12,7 +12,7 @@ export LANGUAGE=zh_CN
 export LANG=zh_CN.UTF-8
 export LC_ALL=zh_CN.UTF-8
 
-EXTRA_ARGS=(--unsafely-treat-insecure-origin-as-secure=http://10.10.10.5:8080/)
+EXTRA_ARGS=(--unsafely-treat-insecure-origin-as-secure=http://10.10.10.6:8080/)
 
 if [ -x "$BRAVE_APT" ]; then
     exec "$BRAVE_APT" "${EXTRA_ARGS[@]}" "$@"
