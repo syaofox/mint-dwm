@@ -267,7 +267,7 @@ if [ ! -d "$REPO_DIR" ]; then
 fi
 
 # 根据参数决定执行范围
-ACTION="$1"
+ACTION="${1:-}"
 if [ -n "$ACTION" ]; then
     case "$ACTION" in
         themes)
