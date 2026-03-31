@@ -179,6 +179,7 @@ static const char *downvol[] = { "/bin/sh", "-c", SCRIPTS_DIR "volume.sh down", 
 static const char *mutevol[] = { "/bin/sh", "-c", SCRIPTS_DIR "volume.sh mute", NULL };
 static const char *sysact[] = { "/bin/sh", "-c", SCRIPTS_DIR "sysact.sh", NULL };
 static const char *clipman[] = { "/bin/sh", "-c", "xfce4-clipman-history", NULL };
+static const char *showkeyscmd[] = { "/bin/sh", "-c", SCRIPTS_DIR "show-keys.sh", NULL };
 
 
 /* autostart */
@@ -204,6 +205,7 @@ static const Key keys[] = {
     { MODKEY|ShiftMask,             XK_l,      spawn,          {.v = slockcmd } }, /* 锁屏 */
 	{ MODKEY,                       XK_f,      spawn,          {.v = fsearchcmd } }, /* 搜索 */
 	{ MODKEY,                       XK_v,      spawn,          {.v = clipman } }, /* 剪贴板 */
+	{ MODKEY,                       XK_h,      spawn,          {.v = showkeyscmd } }, /* 快捷键帮助 */
 	{ 0,                            XF86XK_AudioMute,        spawn, {.v = mutevol } },
 	{ 0,                            XF86XK_AudioLowerVolume, spawn, {.v = downvol } },
 	{ 0,                            XF86XK_AudioRaiseVolume, spawn, {.v = upvol } },
