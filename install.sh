@@ -171,7 +171,7 @@ setup_symlinks() {
         # 检查源文件是否存在
         if [ ! -e "$source" ]; then
             log_info "跳过 $desc: 源文件不存在 ($source)"
-            ((skipped_count++))
+            skipped_count=$((skipped_count + 1))
             continue
         fi
         
@@ -201,7 +201,7 @@ setup_symlinks() {
                         ln -sf "$source" "$target"
                     fi
                     log_success "$desc: 已修复软链接"
-                    ((fixed_count++))
+                    fixed_count=$((fixed_count + 1))
                 fi
             else
                 # 如果是普通文件或目录，备份后创建软链接
@@ -220,7 +220,7 @@ setup_symlinks() {
                     ln -sf "$source" "$target"
                 fi
                 log_success "$desc: 已备份原文件并创建软链接"
-                ((fixed_count++))
+                fixed_count=$((fixed_count + 1))
             fi
         else
             # 目标不存在，直接创建软链接
@@ -231,7 +231,7 @@ setup_symlinks() {
                 ln -sf "$source" "$target"
             fi
             log_success "$desc: 已创建软链接"
-            ((created_count++))
+            created_count=$((created_count + 1))
         fi
     done
     
