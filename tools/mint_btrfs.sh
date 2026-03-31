@@ -53,21 +53,13 @@ TARGETS=(
     # 系统日志与缓存（日志启用 NoCoW）
     "/var/cache:var_cache:false"
     "/var/log:var_log:true"
-    "/var/lib/docker:var_lib_docker:false"
+    "/var/lib/docker:var_lib_docker:true"
     "/var/lib/libvirt/images:var_lib_images:true"
     # 用户缓存（部分启用 NoCoW）
     "$USER_HOME/.cache:user_cache:false"
     "$USER_HOME/.local/share/Trash:user_trash:true"       # 回收站，NoCoW 更佳
-    "$USER_HOME/.local/share/uv:user_uv:false"
-    "$USER_HOME/.cargo:user_cargo:true"
-    "$USER_HOME/.rustup:user_rustup:false"
-    "$USER_HOME/.npm:user_npm_cache:true"
-    "$USER_HOME/.local/share/pnpm:user_pnpm_store:true"
-    "$USER_HOME/.ComfyUI/models:user_ai_models:false"
-    "$USER_HOME/.cache/huggingface:user_hf_models:false"
-    # 可选：浏览器缓存（大量小文件，建议启用 NoCoW，取消注释即可）
-    "$USER_HOME/.cache/google-chrome:user_chrome_cache:true"
-    "$USER_HOME/.cache/chromium:user_chromium_cache:true"
+    "$USER_HOME/.local/share/uv:user_uv:false"   
+    # 可选：浏览器缓存（大量小文件，建议启用 NoCoW）
     "$USER_HOME/.config/BraveSoftware/Brave-Browser:brave_browser:true"
 )
 
@@ -228,49 +220,10 @@ EOF
 sysctl -p /etc/sysctl.d/99-swappiness.conf >/dev/null 2>&1 || true
 sysctl -p /etc/sysctl.d/99-developer-optimizations.conf >/dev/null 2>&1 || true
 
-# Docker btrfs 驱动配置
-log_info "配置 Docker 使用 btrfs 存储驱动..."
-if command -v docker &>/dev/null; then
-    systemctl stop docker docker.socket 2>/dev/null || true
-    if [ -f /etc/docker/daemon.json ]; then
-        cp /etc/docker/daemon.json "$BACKUP_DIR/daemon.json"
-    fi
-    if command -v jq >/dev/null 2>&1 && [ -f /etc/docker/daemon.json ]; then
-        jq '. + {"storage-driver": "btrfs"}' /etc/docker/daemon.json | tee /etc/docker/daemon.json.tmp >/dev/null
-        mv /etc/docker/daemon.json.tmp /etc/docker/daemon.json
-    else
-        cat <<EOF > /etc/docker/daemon.json
-{
-  "storage-driver": "btrfs"
-}
-EOF
-    fi
-    if [ -d /var/lib/docker ] && [ ! -f /var/lib/docker/.migrated ]; then
-        log_warn "Docker 数据目录已存在，若之前使用其他存储驱动，切换后可能无法访问旧镜像/容器"
-        echo -n "是否清空 /var/lib/docker 并重新开始？(y/N) "
-        read -r ans
-        if [[ "$ans" =~ ^[Yy]$ ]]; then
-            rm -rf /var/lib/docker/*
-            log_info "已清空 /var/lib/docker，Docker 将在启动时初始化 btrfs 存储"
-        else
-            log_info "保留现有数据，启动后请手动检查 Docker 状态"
-        fi
-    fi
-    systemctl start docker
-    sleep 2
-    if docker info 2>/dev/null | grep -q "Storage Driver: btrfs"; then
-        log_info "✅ Docker 存储驱动已成功设置为 btrfs"
-    else
-        log_warn "Docker 存储驱动可能未生效，请手动检查：docker info | grep 'Storage Driver'"
-    fi
-else
-    log_warn "Docker 未安装，跳过 Docker 配置"
-fi
-
 log_info "=========================================="
 log_info "所有优化已完成！"
 log_info "备份文件保存在: $BACKUP_DIR"
 log_info "=========================================="
 log_warn "请重启系统以使所有挂载生效，并验证 Timeshift 是否仅备份根子卷 @"
-log_warn "重启后，检查 Docker 驱动: docker info | grep 'Storage Driver'"
+log_info "Docker 将使用默认的 overlay2 存储驱动"
 log_warn "建议检查: mount | grep btrfs 查看所有子卷挂载"
