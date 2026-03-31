@@ -67,7 +67,7 @@ static const char unknown_str[] = "n/a";
 static const struct arg args[] = {
 	/* function format          argument            interval  resource */
 	/* Network - 优化：使用原生 C 函数，最高性能 */
-	{ netspeed_combined, "%s  ", "enp4s0", 2000, "color_netspeed" },
+	{ netspeed_auto, "%s  ", NULL, 2000, "color_netspeed" },
 	/* CPU & RAM - 优化：使用内置函数，合并显示 */
 	{ cpu_perc,     "CPU %s%% ", NULL, 2000, "color_cpu" },
 	{ ram_used,     "RAM %s  ", NULL, 2000, "color_ram" },

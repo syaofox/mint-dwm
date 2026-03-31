@@ -7,9 +7,40 @@
 
 #if defined(__linux__)
 	#include <stdint.h>
+	#include <string.h>
+	#include <stdlib.h>
 
 	#define NET_RX_BYTES "/sys/class/net/%s/statistics/rx_bytes"
 	#define NET_TX_BYTES "/sys/class/net/%s/statistics/tx_bytes"
+
+	static const char *
+	get_default_interface(void)
+	{
+		FILE *fp;
+		static char iface[32] = {0};
+		char line[128];
+
+		fp = fopen("/proc/net/route", "r");
+		if (!fp)
+			return NULL;
+
+		if (fgets(line, sizeof(line), fp) == NULL) {
+			fclose(fp);
+			return NULL;
+		}
+
+		while (fgets(line, sizeof(line), fp)) {
+			unsigned int dest, gw, flags;
+			if (sscanf(line, "%31s %x %x %x", iface, &dest, &gw, &flags) >= 4) {
+				if (dest == 0 && (flags & 0x02)) {
+					fclose(fp);
+					return iface;
+				}
+			}
+		}
+		fclose(fp);
+		return NULL;
+	}
 
 	const char *
 	netspeed_rx(const char *interface)
@@ -83,6 +114,15 @@
 		rx_mbps = (double)(rxbytes - oldrxbytes) * 8.0 * 1000.0 / interval / 1000000.0;
 
 		return bprintf("%.02f/%.02f Mbps", tx_mbps, rx_mbps);
+	}
+
+	const char *
+	netspeed_auto(const char *unused)
+	{
+		const char *iface = get_default_interface();
+		if (!iface)
+			return NULL;
+		return netspeed_combined(iface);
 	}
 #elif defined(__OpenBSD__) | defined(__FreeBSD__)
 	#include <ifaddrs.h>

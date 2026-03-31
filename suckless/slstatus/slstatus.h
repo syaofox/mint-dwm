@@ -51,6 +51,7 @@ const char *gpu_combined(const char *unused);
 const char *netspeed_rx(const char *interface);
 const char *netspeed_tx(const char *interface);
 const char *netspeed_combined(const char *interface);
+const char *netspeed_auto(const char *unused);
 
 /* num_files */
 const char *num_files(const char *path);
