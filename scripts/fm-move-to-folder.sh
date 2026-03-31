@@ -20,7 +20,7 @@ fi
 # 创建目录并移动
 mkdir -p "$TARGET_DIR"
 for file in "$@"; do
-    if [ -e "$file" ]; then
+    if [ -e "$file" ] && [ "$file" != "$BASE_DIR" ]; then
         mv "$file" "$TARGET_DIR/"
     fi
 done
