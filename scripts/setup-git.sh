@@ -94,23 +94,53 @@ if [ -n "$CURRENT_EDITOR" ]; then
 fi
 
 if [ -z "$CURRENT_EDITOR" ]; then
-    # 检测可用的编辑器
-    if command -v nvim &> /dev/null; then
-        DEFAULT_EDITOR="nvim"
-    elif command -v vim &> /dev/null; then
-        DEFAULT_EDITOR="vim"
-    elif command -v nano &> /dev/null; then
-        DEFAULT_EDITOR="nano"
+    echo -e "${BLUE}请选择文本编辑器：${NC}"
+    echo ""
+    echo "  1) nvim     (Neovim - 现代替代品)"
+    echo "  2) vim      (Vim - 经典编辑器)"
+    echo "  3) nano     (Nano - 简单易用)"
+    echo "  4) code     (VS Code - 图形编辑器)"
+    echo "  5) xed      (Xed - Linux Mint 默认编辑器)"
+    echo "  6) code-insiders (VS Code Insiders)"
+    echo "  7) 自定义"
+    echo ""
+    
+    read -r -p "请选择 [1-7]: " editor_choice
+    
+    case "$editor_choice" in
+        1) USER_EDITOR="nvim" ;;
+        2) USER_EDITOR="vim" ;;
+        3) USER_EDITOR="nano" ;;
+        4) USER_EDITOR="code" ;;
+        5) USER_EDITOR="xed" ;;
+        6) USER_EDITOR="code-insiders" ;;
+        7)
+            read -r -p "请输入编辑器命令: " USER_EDITOR
+            ;;
+        *)
+            if command -v nvim &> /dev/null; then
+                USER_EDITOR="nvim"
+            elif command -v xed &> /dev/null; then
+                USER_EDITOR="xed"
+            elif command -v code &> /dev/null; then
+                USER_EDITOR="code"
+            elif command -v vim &> /dev/null; then
+                USER_EDITOR="vim"
+            elif command -v nano &> /dev/null; then
+                USER_EDITOR="nano"
+            else
+                USER_EDITOR="vi"
+            fi
+            ;;
+    esac
+    
+    if command -v "$USER_EDITOR" &> /dev/null; then
+        git config --global core.editor "$USER_EDITOR"
+        print_success "已配置编辑器: $USER_EDITOR"
     else
-        DEFAULT_EDITOR="vi"
+        print_error "编辑器 '$USER_EDITOR' 未安装"
+        exit 1
     fi
-    
-    print_info "检测到默认编辑器: $DEFAULT_EDITOR"
-    read -r -p "请输入要使用的编辑器 [$DEFAULT_EDITOR]: " USER_EDITOR
-    USER_EDITOR=${USER_EDITOR:-$DEFAULT_EDITOR}
-    
-    git config --global core.editor "$USER_EDITOR"
-    print_success "已配置编辑器: $USER_EDITOR"
 fi
 
 # 3. 配置别名
