@@ -18,7 +18,7 @@ Super + Shift + a     截图 (复制并保存)
 Super + Shift + l     锁屏
 Super + Shift + q     退出 dwm
 窗口管理
-Super + j / k         聚焦下一个/上一个窗口
+Super + ` / Shift + ` 聚焦下一个/上一个窗口
 Super + , / .         减小/增大主窗口区域
 Super + s             交换主窗口 (Zoom)
 Super + q             关闭当前窗口
